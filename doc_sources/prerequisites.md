@@ -121,7 +121,7 @@ Key Pair를 PC의 임의 위치에 저장한 후 **\[Launch Instances\]** 를 �
 
     (1) 소소 코드를 다운로드 받는다. 
     ```shell script
-    wget 'https://github.com/ksmin23/aws-analytics-immersion-day/archive/master.zip'
+    wget 'https://github.com/aws-samples/aws-analytics-immersion-day/archive/refs/heads/main.zip'
     ```
     (2) 다운로드 받은 소스 코드의 압축을 해제한다.
     ```shell script

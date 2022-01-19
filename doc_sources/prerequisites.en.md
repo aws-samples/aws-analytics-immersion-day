@@ -121,7 +121,7 @@ In the navigation pane, select the ec2 instance previously created, and then cli
 
     (1) Download the source code. 
     ```shell script
-    wget 'https://github.com/ksmin23/aws-analytics-immersion-day/archive/main.zip'
+    wget 'https://github.com/aws-samples/aws-analytics-immersion-day/archive/refs/heads/main.zip'
     ```
     (2) Extract the downloaded source code.
     ```shell script
