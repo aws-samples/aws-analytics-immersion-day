@@ -539,7 +539,7 @@ Through this lab, we have built a Business Intelligent System with Lambda Archit
     $ cd es-lib
     $ source bin/activate
     (es-lib) $ mkdir -p python_modules
-    (es-lib) $ pip install 'elasticsearch < 7.14' requests requests-aws4auth -t python_modules
+    (es-lib) $ pip install 'elasticsearch>=7.0.0,< 7.11' requests requests-aws4auth -t python_modules
     (es-lib) $ mv python_modules python
     (es-lib) $ zip -r es-lib.zip python/
     (es-lib) $ aws s3 mb s3://my-bucket-for-lambda-layer-packages

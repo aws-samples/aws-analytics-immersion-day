@@ -16,6 +16,6 @@ boto3==1.14.13
 botocore==1.17.13
 
 # pip install elasticsearch
-elasticsearch>=7.0.0,<7.14
+elasticsearch>=7.0.0,<7.11
 requests==2.23.0
 requests-aws4auth==0.9
