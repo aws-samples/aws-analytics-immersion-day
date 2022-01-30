@@ -5,8 +5,10 @@
 import os
 import random
 
+import aws_cdk as cdk
+
 from aws_cdk import (
-  core,
+  Stack,
   aws_ec2,
   aws_iam,
   aws_s3 as s3,
@@ -18,6 +20,7 @@ from aws_cdk import (
   aws_events,
   aws_events_targets
 )
+from constructs import Construct
 
 from aws_cdk.aws_lambda_event_sources import (
   KinesisEventSource
@@ -27,12 +30,11 @@ random.seed(47)
 
 S3_BUCKET_LAMBDA_LAYER_LIB = os.getenv('S3_BUCKET_LAMBDA_LAYER_LIB', 'lambda-layer-resources-use1')
 
-class DataAnalyticsSystemStack(core.Stack):
+class DataAnalyticsSystemStack(Stack):
 
-  def __init__(self, scope: core.Construct, id: str, **kwargs) -> None:
-    super().__init__(scope, id, **kwargs)
+  def __init__(self, scope: Construct, construct_id: str, **kwargs) -> None:
+    super().__init__(scope, construct_id, **kwargs)
 
-    # The code that defines your stack goes here
     vpc = aws_ec2.Vpc(self, "AnalyticsWorkshopVPC",
       max_azs=2,
       gateway_endpoints={
@@ -48,7 +50,7 @@ class DataAnalyticsSystemStack(core.Stack):
       description='security group for an bastion host',
       security_group_name='bastion-host-sg'
     )
-    core.Tags.of(sg_bastion_host).add('Name', 'bastion-host-sg')
+    cdk.Tags.of(sg_bastion_host).add('Name', 'bastion-host-sg')
 
     #XXX: https://docs.aws.amazon.com/cdk/api/latest/python/aws_cdk.aws_ec2/InstanceClass.html
     #XXX: https://docs.aws.amazon.com/cdk/api/latest/python/aws_cdk.aws_ec2/InstanceSize.html#aws_cdk.aws_ec2.InstanceSize
@@ -84,7 +86,7 @@ class DataAnalyticsSystemStack(core.Stack):
       description='security group for an elasticsearch client',
       security_group_name='use-es-cluster-sg'
     )
-    core.Tags.of(sg_use_es).add('Name', 'use-es-cluster-sg')
+    cdk.Tags.of(sg_use_es).add('Name', 'use-es-cluster-sg')
 
     sg_es = aws_ec2.SecurityGroup(self, "ElasticSearchSG",
       vpc=vpc,
@@ -92,7 +94,7 @@ class DataAnalyticsSystemStack(core.Stack):
       description='security group for an elasticsearch cluster',
       security_group_name='es-cluster-sg'
     )
-    core.Tags.of(sg_es).add('Name', 'es-cluster-sg')
+    cdk.Tags.of(sg_es).add('Name', 'es-cluster-sg')
 
     sg_es.add_ingress_rule(peer=sg_es, connection=aws_ec2.Port.all_tcp(), description='es-cluster-sg')
     sg_es.add_ingress_rule(peer=sg_use_es, connection=aws_ec2.Port.all_tcp(), description='use-es-cluster-sg')
@@ -138,7 +140,8 @@ class DataAnalyticsSystemStack(core.Stack):
       #XXX: The ARN will be formatted as follows:
       # arn:{partition}:{service}:{region}:{account}:{resource}{sep}}{resource-name}
       resources=[self.format_arn(service="logs", resource="log-group",
-        resource_name="{}:log-stream:*".format(firehose_log_group_name), sep=":")],
+        resource_name="{}:log-stream:*".format(firehose_log_group_name),
+        arn_format=cdk.ArnFormat.COLON_RESOURCE_NAME)],
       actions=["logs:PutLogEvents"]
     ))
 
@@ -219,13 +222,13 @@ class DataAnalyticsSystemStack(core.Stack):
       },
       vpc_options={
         "securityGroupIds": [sg_es.security_group_id],
-        "subnetIds": vpc.select_subnets(subnet_type=aws_ec2.SubnetType.PRIVATE).subnet_ids
+        "subnetIds": vpc.select_subnets(subnet_type=aws_ec2.SubnetType.PRIVATE_WITH_NAT).subnet_ids
       }
     )
-    core.Tags.of(es_cfn_domain).add('Name', 'analytics-workshop-es')
+    cdk.Tags.of(es_cfn_domain).add('Name', 'analytics-workshop-es')
 
     #XXX: https://github.com/aws/aws-cdk/issues/1342
-    s3_lib_bucket = s3.Bucket.from_bucket_name(self, id, S3_BUCKET_LAMBDA_LAYER_LIB)
+    s3_lib_bucket = s3.Bucket.from_bucket_name(self, construct_id, S3_BUCKET_LAMBDA_LAYER_LIB)
     es_lib_layer = _lambda.LayerVersion(self, "ESLib",
       layer_version_name="es-lib",
       compatible_runtimes=[_lambda.Runtime.PYTHON_3_7],
@@ -242,7 +245,7 @@ class DataAnalyticsSystemStack(core.Stack):
       function_name="UpsertToES",
       handler="upsert_to_es.lambda_handler",
       description="Upsert records into elasticsearch",
-      code=_lambda.Code.asset("./src/main/python/UpsertToES"),
+      code=_lambda.Code.from_asset("./src/main/python/UpsertToES"),
       environment={
         'ES_HOST': es_cfn_domain.attr_domain_endpoint,
         #TODO: MUST set appropriate environment variables for your workloads.
@@ -252,7 +255,7 @@ class DataAnalyticsSystemStack(core.Stack):
         'REGION_NAME': kwargs['env'].region,
         'DATE_TYPE_FIELDS': 'InvoiceDate'
       },
-      timeout=core.Duration.minutes(5),
+      timeout=cdk.Duration.minutes(5),
       layers=[es_lib_layer],
       security_groups=[sg_use_es],
       vpc=vpc
@@ -271,7 +274,7 @@ class DataAnalyticsSystemStack(core.Stack):
       function_name="MergeSmallFiles",
       handler="athena_ctas.lambda_handler",
       description="Merge small files in S3",
-      code=_lambda.Code.asset("./src/main/python/MergeSmallFiles"),
+      code=_lambda.Code.from_asset("./src/main/python/MergeSmallFiles"),
       environment={
         #TODO: MUST set appropriate environment variables for your workloads.
         'OLD_DATABASE': 'mydatabase',
@@ -284,7 +287,7 @@ class DataAnalyticsSystemStack(core.Stack):
         'STAGING_OUTPUT_PREFIX': 's3://{}'.format(os.path.join(s3_bucket.bucket_name, 'tmp')),
         'COLUMN_NAMES': 'invoice,stockcode,description,quantity,invoicedate,price,customer_id,country',
       },
-      timeout=core.Duration.minutes(5)
+      timeout=cdk.Duration.minutes(5)
     )
 
     merge_small_files_lambda_fn.add_to_role_policy(aws_iam.PolicyStatement(
@@ -338,3 +341,7 @@ class DataAnalyticsSystemStack(core.Stack):
       retention=aws_logs.RetentionDays.THREE_DAYS)
     log_group.grant_write(merge_small_files_lambda_fn)
 
+    cdk.CfnOutput(self, 'BastionHostId', value=bastion_host.instance_id, export_name='BastionHostId')
+    cdk.CfnOutput(self, 'BastionHostPublicDNSName', value=bastion_host.instance_public_dns_name, export_name='BastionHostPublicDNSName')
+    cdk.CfnOutput(self, 'ESDomainEndpoint', value=es_cfn_domain.attr_domain_endpoint, export_name='ESDomainEndpoint')
+    cdk.CfnOutput(self, 'ESDashboardsURL', value=f"{es_cfn_domain.attr_domain_endpoint}/_dashboards/", export_name='ESDashboardsURL')

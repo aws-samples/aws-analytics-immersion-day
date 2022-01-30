@@ -584,7 +584,7 @@ Lambda Architecture 구조의 Business Intelligent System을 구축해 보셨습
     (es-lib) $ mv python_modules python # 사용자가 지정한 패키지 디렉터리 이름을 python으로 변경함 (python 디렉터리에 패키지를 설치할 경우 에러가 나기 때문에 다른 이름의 디렉터리에 패키지를 설치 후, 디렉터리 이름을 변경함)
     (es-lib) $ zip -r es-lib.zip python/ # 필요한 패키지가 설치된 디렉터리를 압축함
     (es-lib) $ aws s3 mb s3://my-bucket-for-lambda-layer-packages # 압축한 패키지를 업로드할 s3 bucket을 생성함
-    (es-lib) $ aws s3 cp es-lib.zip s3://my-bucket-for-lambda-layer-packages/python/ # 압축한 패키지를 s3에 업로드 한 후, lambda layer에 패키지를 등록할 때, s3 위치를 등록하면 됨
+    (es-lib) $ aws s3 cp es-lib.zip s3://my-bucket-for-lambda-layer-packages/var/ # 압축한 패키지를 s3에 업로드 한 후, lambda layer에 패키지를 등록할 때, s3 위치를 등록하면 됨
     (es-lib) $ deactivate
     ```
     + [How do I create a Lambda layer using a simulated Lambda environment with Docker?](https://aws.amazon.com/premiumsupport/knowledge-center/lambda-layer-simulated-docker/)
@@ -673,7 +673,7 @@ AWS CDK를 이용해서 배포하는 방법을 소개 합니다.
    예)
     ```shell script
     $ cdk --version
-    1.71.0 (build 953bc25)
+    2.10.0 (build e5b301f)
     ```
 
 ##### Useful commands
@@ -717,7 +717,7 @@ cdk를 실행할 때 사용할 IAM User를 생성한 후, `~/.aws/config`에 등
 설정 한 후, `cdk deploy` 명령어를 이용해서 배포합니다.
 
     ```shell script
-    $ git clone https://github.com/ksmin23/aws-analytics-immersion-day.git
+    $ git clone https://github.com/aws-samples/aws-analytics-immersion-day.git
     $ cd aws-analytics-immersion-day
     $ python3 -m venv .env
     $ source .env/bin/activate

@@ -543,7 +543,7 @@ Through this lab, we have built a Business Intelligent System with Lambda Archit
     (es-lib) $ mv python_modules python
     (es-lib) $ zip -r es-lib.zip python/
     (es-lib) $ aws s3 mb s3://my-bucket-for-lambda-layer-packages
-    (es-lib) $ aws s3 cp es-lib.zip s3://my-bucket-for-lambda-layer-packages/python/
+    (es-lib) $ aws s3 cp es-lib.zip s3://my-bucket-for-lambda-layer-packages/var/
     (es-lib) $ deactivate
     ```
 ### <a name="SSH-Tunnel-with-PuTTy-on-Windows"></a>SSH Tunnel for Kibana Instructions with PuTTy on Windows
@@ -632,7 +632,7 @@ Introducing how to deploy using the AWS CDK.
    ex)
     ```shell script
     $ cdk --version
-    1.71.0 (build 953bc25)
+    2.10.0 (build e5b301f)
     ```
 
 ##### Useful commands
@@ -675,7 +675,7 @@ For example, after creating an IAM User called cdk_user, add it to `~/.aws/confi
 After setting, deploy using the `cdk deploy` command. 
 
     ```shell script
-    $ git clone https://github.com/ksmin23/aws-analytics-immersion-day.git
+    $ git clone https://github.com/aws-samples/aws-analytics-immersion-day.git
     $ cd aws-analytics-immersion-day
     $ python3 -m venv .env
     $ source .env/bin/activate
