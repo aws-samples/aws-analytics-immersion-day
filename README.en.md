@@ -546,6 +546,19 @@ Through this lab, we have built a Business Intelligent System with Lambda Archit
     (es-lib) $ aws s3 cp es-lib.zip s3://my-bucket-for-lambda-layer-packages/var/
     (es-lib) $ deactivate
     ```
+    + [How do I create a Lambda layer using a simulated Lambda environment with Docker?](https://aws.amazon.com/premiumsupport/knowledge-center/lambda-layer-simulated-docker/)
+    ```
+    $ cat <<EOF > requirements.txt
+    > elasticsearch>=7.0.0,<7.11
+    > requests==2.23.0
+    > requests-aws4auth==0.9
+    > EOF
+    $ docker run -v "$PWD":/var/task "public.ecr.aws/sam/build-python3.7" /bin/sh -c "pip install -r requirements.txt -t python/lib/python3.7/site-packages/; exit"
+    $ zip -r es-lib.zip python > /dev/null
+    $ aws s3 mb s3://my-bucket-for-lambda-layer-packages
+    $ aws s3 cp es-lib.zip s3://my-bucket-for-lambda-layer-packages/var/
+    ```
+
 ### <a name="SSH-Tunnel-with-PuTTy-on-Windows"></a>SSH Tunnel for Kibana Instructions with PuTTy on Windows
 + [Windows SSH / Tunnel for Kibana Instructions - Amazon Elasticsearch Service](https://search-sa-log-solutions.s3-us-east-2.amazonaws.com/logstash/docs/Kibana_Proxy_SSH_Tunneling_Windows.pdf)
 + [Use an SSH Tunnel to access Kibana within an AWS VPC with PuTTy on Windows](https://amazonmsk-labs.workshop.aws/en/mskkdaflinklab/createesdashboard.html)
