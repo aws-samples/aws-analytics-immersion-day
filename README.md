@@ -443,7 +443,7 @@ Lambda function을 이용해서 Amazon ES에 데이터를 실시간으로 색인
  ![aws-lambda-add-layer-to-function](./assets/aws-lambda-add-layer-to-function.png)
 8. **\[Add\]** 클릭합니다.
 9. Designer(디자이너) 에서 `UpsertToES` 을 선택하여 함수의 코드 및 구성으로 돌아갑니다.
-10. Function code의 코드 편집기에 `upsert_to_es.py` 파일의 코드를 복사해서 붙여넣습니다.
+10. Function code의 코드 편집기에 `upsert_to_es.py` 파일의 코드를 복사해서 붙여넣은 후, **Deploy** 버튼을 클릭합니다.
 11. Environment variables 에서 **\[Edit\]** 를 클릭합니다.
 12. **\[Add environment variables\]** 를 클릭해서 아래 4개의 Environment variables을 등록합니다.
     ```shell script

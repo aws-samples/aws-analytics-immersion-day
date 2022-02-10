@@ -405,7 +405,7 @@ For how to create `es-lib.zip`, refer to [Example of creating a Python package t
  ![aws-lambda-add-layer-to-function](./assets/aws-lambda-add-layer-to-function.png)
 8. Click **Add**.
 9. Select `UpsertToES` in the Designer tab to return to Function code and Configuration.
-10. Copy and paste the code from the `upsert_to_es.py` file into the code editor of the Function code.
+10. Copy and paste the code from the `upsert_to_es.py` file into the code editor of the Function code. Click **Deploy**
 11. In Environment variables, click **Edit**.
 12. Click **Add environment variables** to register the following 4 environment variables.
     ```shell script
