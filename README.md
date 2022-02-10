@@ -301,7 +301,7 @@ Rule type으로 `Schedule expression`을 선택하고, Schedule expression에 �
 `cron(5 * * * *)` 입력합니다.
  ![aws-athena-ctas-lambda-add-trigger](./assets/aws-athena-ctas-lambda-add-trigger.png)
 8. **Trigger configuration** 에서 **\[Add\]** 를 클릭합니다.
-9. Function code의 코드 편집기에 `athena_ctas.py` 파일의 코드를 복사해서 붙여넣습니다.
+9. Function code의 코드 편집기에 `athena_ctas.py` 파일의 코드를 복사해서 붙여넣은 후, **Deploy** 버튼을 클릭합니다.
 10. **\[Add environment variables\]** 를 클릭해서 다음 Environment variables을 등록합니다.
     ```shell script
     OLD_DATABASE=<source database>
