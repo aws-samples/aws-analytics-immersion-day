@@ -42,3 +42,5 @@ in2csv online_retail_II.xlsx > online_retail.csv
 head online_retail.csv > sample_online_retail.csv
 popd
 
+ln -sf ${WORK_DIR}/resources ${TARGET_DIR}/resources
+

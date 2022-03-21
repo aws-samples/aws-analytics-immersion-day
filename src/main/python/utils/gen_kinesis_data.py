@@ -24,7 +24,7 @@ SCHEMA_CONV_TOOL = {
   "Quantity": int,
   "InvoiceDate": str,
   "Price": float,
-  "Customer_ID": str,
+  "Customer ID": str,
   "Country": str
 }
 
