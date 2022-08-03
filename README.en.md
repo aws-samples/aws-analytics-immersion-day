@@ -537,9 +537,9 @@ Through this lab, we have built a Business Intelligent System with Lambda Archit
 
       :warning: **You should create the python package on Amazon Linux, otherwise create it using a simulated Lambda environment with Docker.**
       <pre>
-      $ python3 -m venv es-lib
-      $ cd es-lib
-      $ source bin/activate
+      [ec2-user@ip-172-31-6-207 ~] $ python3 -m venv es-lib
+      [ec2-user@ip-172-31-6-207 ~] $ cd es-lib
+      [ec2-user@ip-172-31-6-207 ~] $ source bin/activate
       (es-lib) $ mkdir -p python_modules
       (es-lib) $ pip install 'elasticsearch>=7.0.0,< 7.11' requests requests-aws4auth -t python_modules
       (es-lib) $ mv python_modules python

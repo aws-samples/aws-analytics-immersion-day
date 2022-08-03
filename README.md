@@ -576,11 +576,11 @@ Lambda Architecture 구조의 Business Intelligent System을 구축해 보셨습
 + [AWS Lambda Layers](https://docs.aws.amazon.com/lambda/latest/dg/configuration-layers.html#configuration-layers-path)
     + <a name="aws-lambda-layer-python-packages"></a>AWS Lambda Layer에 등록할 Python 패키지 생성 예제: **elasticsearch** 
 
-      :warning: Python 패키지를 생성할 때는 AWS Lambda의 실행환경과 동일한 환경에서 생성해야하므로, Amazon Linux에서 Python 패키지를 생성하는 것을 추천 드립니다.
+      :warning: **Python 패키지를 생성할 때는 AWS Lambda의 실행환경과 동일한 환경에서 생성해야하므로, Amazon Linux에서 Python 패키지를 생성하는 것을 추천 드립니다.**
       <pre>
-      $ python3 -m venv es-lib # virtual environments을 생성함
-      $ cd es-lib
-      $ source bin/activate
+      [ec2-user@ip-172-31-6-207 ~] $ python3 -m venv es-lib # virtual environments을 생성함
+      [ec2-user@ip-172-31-6-207 ~] $ cd es-lib
+      [ec2-user@ip-172-31-6-207 ~] $ source bin/activate
       (es-lib) $ mkdir -p python_modules # 필요한 패키지를 저장할 디렉터리 생성
       (es-lib) $ pip install 'elasticsearch>=7.0.0,<7.11' requests requests-aws4auth -t python_modules # 필요한 패키지를 사용자가 지정한 패키지 디렉터리에 저장함
       (es-lib) $ mv python_modules python # 사용자가 지정한 패키지 디렉터리 이름을 python으로 변경함 (python 디렉터리에 패키지를 설치할 경우 에러가 나기 때문에 다른 이름의 디렉터리에 패키지를 설치 후, 디렉터리 이름을 변경함)
