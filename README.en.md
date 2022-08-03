@@ -533,31 +533,33 @@ Through this lab, we have built a Business Intelligent System with Lambda Archit
 + [Amazon Kinesis Data Streams](https://docs.aws.amazon.com/streams/latest/dev/introduction.html)
 + [Amazon QuickSight](https://docs.aws.amazon.com/quicksight/latest/user/welcome.html)
 + [AWS Lambda Layers](https://docs.aws.amazon.com/lambda/latest/dg/configuration-layers.html#configuration-layers-path)
-    + <a name="aws-lambda-layer-python-packages"></a>Example of creating a Python package to register with AWS Lambda layer: **elasticsearch**
-    ```
-    $ python3 -m venv es-lib
-    $ cd es-lib
-    $ source bin/activate
-    (es-lib) $ mkdir -p python_modules
-    (es-lib) $ pip install 'elasticsearch>=7.0.0,< 7.11' requests requests-aws4auth -t python_modules
-    (es-lib) $ mv python_modules python
-    (es-lib) $ zip -r es-lib.zip python/
-    (es-lib) $ aws s3 mb s3://my-bucket-for-lambda-layer-packages
-    (es-lib) $ aws s3 cp es-lib.zip s3://my-bucket-for-lambda-layer-packages/var/
-    (es-lib) $ deactivate
-    ```
-    + [How do I create a Lambda layer using a simulated Lambda environment with Docker?](https://aws.amazon.com/premiumsupport/knowledge-center/lambda-layer-simulated-docker/)
-    ```
-    $ cat <<EOF > requirements.txt
-    > elasticsearch>=7.0.0,<7.11
-    > requests==2.23.0
-    > requests-aws4auth==0.9
-    > EOF
-    $ docker run -v "$PWD":/var/task "public.ecr.aws/sam/build-python3.7" /bin/sh -c "pip install -r requirements.txt -t python/lib/python3.7/site-packages/; exit"
-    $ zip -r es-lib.zip python > /dev/null
-    $ aws s3 mb s3://my-bucket-for-lambda-layer-packages
-    $ aws s3 cp es-lib.zip s3://my-bucket-for-lambda-layer-packages/var/
-    ```
+    + <a name="aws-lambda-layer-python-packages"></a>Example of creating a python package to register with AWS Lambda layer: **elasticsearch**
+
+      :warning: **You should create the python package on Amazon Linux, otherwise create it using a simulated Lambda environment with Docker.**
+      <pre>
+      $ python3 -m venv es-lib
+      $ cd es-lib
+      $ source bin/activate
+      (es-lib) $ mkdir -p python_modules
+      (es-lib) $ pip install 'elasticsearch>=7.0.0,< 7.11' requests requests-aws4auth -t python_modules
+      (es-lib) $ mv python_modules python
+      (es-lib) $ zip -r es-lib.zip python/
+      (es-lib) $ aws s3 mb s3://my-bucket-for-lambda-layer-packages
+      (es-lib) $ aws s3 cp es-lib.zip s3://my-bucket-for-lambda-layer-packages/var/
+      (es-lib) $ deactivate
+      </pre>
+    + [How to create a Lambda layer using a simulated Lambda environment with Docker](https://aws.amazon.com/premiumsupport/knowledge-center/lambda-layer-simulated-docker/)
+      ```
+      $ cat <<EOF > requirements.txt
+      > elasticsearch>=7.0.0,<7.11
+      > requests==2.23.0
+      > requests-aws4auth==0.9
+      > EOF
+      $ docker run -v "$PWD":/var/task "public.ecr.aws/sam/build-python3.7" /bin/sh -c "pip install -r requirements.txt -t python/lib/python3.7/site-packages/; exit"
+      $ zip -r es-lib.zip python > /dev/null
+      $ aws s3 mb s3://my-bucket-for-lambda-layer-packages
+      $ aws s3 cp es-lib.zip s3://my-bucket-for-lambda-layer-packages/var/
+      ```
 
 ### <a name="SSH-Tunnel-with-PuTTy-on-Windows"></a>SSH Tunnel for Kibana Instructions with PuTTy on Windows
 + [Windows SSH / Tunnel for Kibana Instructions - Amazon Elasticsearch Service](https://search-sa-log-solutions.s3-us-east-2.amazonaws.com/logstash/docs/Kibana_Proxy_SSH_Tunneling_Windows.pdf)
