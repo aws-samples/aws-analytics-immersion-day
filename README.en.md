@@ -39,7 +39,10 @@ Select **Kinesis** from the list of services on the AWS Management Console.
 1. Make sure the **Kinesis Data Streams** radio button is selected and click **Create data stream** button.
 2. Enter `retail-trans` as the Data stream name.
 3. Enter the desired name for **Kinesis stream name** (e.g. `retail-trans`).
-4. In **Number of open shards** under **Data stream capacity**, enter `1`.
+4. Choose either the **On-demand** or **Provisioned** capacity mode.<br/>
+   With the **On-demand mode**, you can then choose **Create Kinesis stream** to create your data stream.<br/>
+   With the **Provisioned** mode, you must then specify the number of shards you need, and then choose **Create Kinesis stream**.<br/>
+   If you choose **Provisioned** mode, enter `1` in **Number of open shards** under **Data stream capacity**.
 5. Click the **Create data stream** button and wait for the status of the created kinesis stream to become active.
 
 \[[Top](#top)\]

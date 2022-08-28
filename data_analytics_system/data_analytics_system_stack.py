@@ -104,7 +104,11 @@ class DataAnalyticsSystemStack(Stack):
       bucket_name="aws-analytics-immersion-day-{region}-{account}".format(
         region=kwargs['env'].region, account=kwargs['env'].account))
 
-    trans_kinesis_stream = kinesis.Stream(self, "AnalyticsWorkshopKinesisStreams", stream_name='retail-trans')
+    trans_kinesis_stream = kinesis.Stream(self, "AnalyticsWorkshopKinesisStreams",
+      # specify the ON-DEMAND capacity mode.
+      # default: StreamMode.PROVISIONED
+      stream_mode=kinesis.StreamMode.ON_DEMAND,
+      stream_name='retail-trans')
 
     firehose_role_policy_doc = aws_iam.PolicyDocument()
     firehose_role_policy_doc.add_statements(aws_iam.PolicyStatement(**{
