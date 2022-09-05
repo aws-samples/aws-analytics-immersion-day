@@ -189,7 +189,7 @@ class DataAnalyticsSystemStack(Stack):
       }
     )
 
-    es_domain_name = 'retail'
+    ops_domain_name = 'retail'
 
     master_user_secret = aws_secretsmanager.Secret(self, "OpenSearchMasterUserSecret",
       generate_secret_string=aws_secretsmanager.SecretStringGenerator(
@@ -203,8 +203,8 @@ class DataAnalyticsSystemStack(Stack):
 
     #XXX: aws cdk elastsearch example - https://github.com/aws/aws-cdk/issues/2873
     # You should camelCase the property names instead of PascalCase
-    es_cfn_domain = aws_opensearchservice.Domain(self, "OpenSearch",
-      domain_name=es_domain_name,
+    ops_domain = aws_opensearchservice.Domain(self, "OpenSearch",
+      domain_name=ops_domain_name,
       version=aws_opensearchservice.EngineVersion.OPENSEARCH_1_3,
       capacity={
         "master_nodes": 3,
@@ -244,7 +244,7 @@ class DataAnalyticsSystemStack(Stack):
       vpc_subnets=[aws_ec2.SubnetSelection(one_per_az=True, subnet_type=aws_ec2.SubnetType.PRIVATE_WITH_NAT)],
       removal_policy=cdk.RemovalPolicy.DESTROY # default: cdk.RemovalPolicy.RETAIN
     )
-    cdk.Tags.of(es_cfn_domain).add('Name', 'analytics-workshop-es')
+    cdk.Tags.of(ops_domain).add('Name', 'analytics-workshop-es')
 
     #XXX: https://github.com/aws/aws-cdk/issues/1342
     s3_lib_bucket = s3.Bucket.from_bucket_name(self, construct_id, S3_BUCKET_LAMBDA_LAYER_LIB)
@@ -266,7 +266,7 @@ class DataAnalyticsSystemStack(Stack):
       description="Upsert records into elasticsearch",
       code=_lambda.Code.from_asset("./src/main/python/UpsertToES"),
       environment={
-        'ES_HOST': es_cfn_domain.domain_endpoint,
+        'ES_HOST': ops_domain.domain_endpoint,
         #TODO: MUST set appropriate environment variables for your workloads.
         'ES_INDEX': 'retail',
         'ES_TYPE': 'trans',
@@ -362,5 +362,5 @@ class DataAnalyticsSystemStack(Stack):
 
     cdk.CfnOutput(self, 'BastionHostId', value=bastion_host.instance_id, export_name='BastionHostId')
     cdk.CfnOutput(self, 'BastionHostPublicDNSName', value=bastion_host.instance_public_dns_name, export_name='BastionHostPublicDNSName')
-    cdk.CfnOutput(self, 'ESDomainEndpoint', value=es_cfn_domain.domain_endpoint, export_name='ESDomainEndpoint')
-    cdk.CfnOutput(self, 'ESDashboardsURL', value=f"{es_cfn_domain.domain_endpoint}/_dashboards/", export_name='ESDashboardsURL')
+    cdk.CfnOutput(self, 'OPSDomainEndpoint', value=ops_domain.domain_endpoint, export_name='OPSDomainEndpoint')
+    cdk.CfnOutput(self, 'OPSDashboardsURL', value=f"{ops_domain.domain_endpoint}/_dashboards/", export_name='OPSDashboardsURL')
