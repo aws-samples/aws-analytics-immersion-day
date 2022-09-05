@@ -82,26 +82,26 @@ class DataAnalyticsSystemStack(Stack):
       resources=["*"],
       actions=["firehose:*"]))
 
-    sg_use_es = aws_ec2.SecurityGroup(self, "ElasticSearchClientSG",
+    sg_use_opensearch = aws_ec2.SecurityGroup(self, "OpenSearchClientSG",
       vpc=vpc,
       allow_all_outbound=True,
-      description='security group for an elasticsearch client',
-      security_group_name='use-es-cluster-sg'
+      description='security group for an opensearch client',
+      security_group_name='use-ops-cluster-sg'
     )
-    cdk.Tags.of(sg_use_es).add('Name', 'use-es-cluster-sg')
+    cdk.Tags.of(sg_use_opensearch).add('Name', 'use-ops-cluster-sg')
 
-    sg_opensearch_cluster = aws_ec2.SecurityGroup(self, "ElasticSearchSG",
+    sg_opensearch_cluster = aws_ec2.SecurityGroup(self, "OpenSearchSG",
       vpc=vpc,
       allow_all_outbound=True,
-      description='security group for an elasticsearch cluster',
-      security_group_name='es-cluster-sg'
+      description='security group for an opensearch cluster',
+      security_group_name='ops-cluster-sg'
     )
-    cdk.Tags.of(sg_opensearch_cluster).add('Name', 'es-cluster-sg')
+    cdk.Tags.of(sg_opensearch_cluster).add('Name', 'ops-cluster-sg')
 
-    sg_opensearch_cluster.add_ingress_rule(peer=sg_opensearch_cluster, connection=aws_ec2.Port.all_tcp(), description='es-cluster-sg')
+    sg_opensearch_cluster.add_ingress_rule(peer=sg_opensearch_cluster, connection=aws_ec2.Port.all_tcp(), description='ops-cluster-sg')
 
-    sg_opensearch_cluster.add_ingress_rule(peer=sg_use_es, connection=aws_ec2.Port.tcp(443), description='use-es-cluster-sg')
-    sg_opensearch_cluster.add_ingress_rule(peer=sg_use_es, connection=aws_ec2.Port.tcp_range(9200, 9300), description='use-es-cluster-sg')
+    sg_opensearch_cluster.add_ingress_rule(peer=sg_use_opensearch, connection=aws_ec2.Port.tcp(443), description='use-ops-cluster-sg')
+    sg_opensearch_cluster.add_ingress_rule(peer=sg_use_opensearch, connection=aws_ec2.Port.tcp_range(9200, 9300), description='use-ops-cluster-sg')
 
     sg_opensearch_cluster.add_ingress_rule(peer=sg_bastion_host, connection=aws_ec2.Port.tcp(443), description='bastion-host-sg')
     sg_opensearch_cluster.add_ingress_rule(peer=sg_bastion_host, connection=aws_ec2.Port.tcp_range(9200, 9300), description='bastion-host-sg')
@@ -276,7 +276,7 @@ class DataAnalyticsSystemStack(Stack):
       },
       timeout=cdk.Duration.minutes(5),
       layers=[es_lib_layer],
-      security_groups=[sg_use_es],
+      security_groups=[sg_use_opensearch],
       vpc=vpc
     )
 
