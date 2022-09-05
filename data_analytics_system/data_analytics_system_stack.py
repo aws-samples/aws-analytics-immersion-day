@@ -3,6 +3,7 @@
 # vim: tabstop=2 shiftwidth=2 softtabstop=2 expandtab
 
 import os
+import json
 import random
 
 import aws_cdk as cdk
@@ -16,7 +17,8 @@ from aws_cdk import (
   aws_kinesis as kinesis,
   aws_kinesisfirehose,
   aws_logs,
-  aws_elasticsearch,
+  aws_opensearchservice,
+  aws_secretsmanager,
   aws_events,
   aws_events_targets
 )
@@ -36,7 +38,7 @@ class DataAnalyticsSystemStack(Stack):
     super().__init__(scope, construct_id, **kwargs)
 
     vpc = aws_ec2.Vpc(self, "AnalyticsWorkshopVPC",
-      max_azs=2,
+      max_azs=3,
       gateway_endpoints={
         "S3": aws_ec2.GatewayVpcEndpointOptions(
           service=aws_ec2.GatewayVpcEndpointAwsService.S3
@@ -97,8 +99,12 @@ class DataAnalyticsSystemStack(Stack):
     cdk.Tags.of(sg_es).add('Name', 'es-cluster-sg')
 
     sg_es.add_ingress_rule(peer=sg_es, connection=aws_ec2.Port.all_tcp(), description='es-cluster-sg')
-    sg_es.add_ingress_rule(peer=sg_use_es, connection=aws_ec2.Port.all_tcp(), description='use-es-cluster-sg')
-    sg_es.add_ingress_rule(peer=sg_bastion_host, connection=aws_ec2.Port.all_tcp(), description='bastion-host-sg')
+
+    sg_es.add_ingress_rule(peer=sg_use_es, connection=aws_ec2.Port.tcp(443), description='use-es-cluster-sg')
+    sg_es.add_ingress_rule(peer=sg_use_es, connection=aws_ec2.Port.tcp_range(9200, 9300), description='use-es-cluster-sg')
+
+    sg_es.add_ingress_rule(peer=sg_bastion_host, connection=aws_ec2.Port.tcp(443), description='bastion-host-sg')
+    sg_es.add_ingress_rule(peer=sg_bastion_host, connection=aws_ec2.Port.tcp_range(9200, 9300), description='bastion-host-sg')
 
     s3_bucket = s3.Bucket(self, "s3bucket",
       bucket_name="aws-analytics-immersion-day-{region}-{account}".format(
@@ -183,51 +189,60 @@ class DataAnalyticsSystemStack(Stack):
       }
     )
 
-    #XXX: aws cdk elastsearch example - https://github.com/aws/aws-cdk/issues/2873
     es_domain_name = 'retail'
-    es_cfn_domain = aws_elasticsearch.CfnDomain(self, "ElasticSearch",
-      elasticsearch_cluster_config={
-        "dedicatedMasterCount": 3,
-        "dedicatedMasterEnabled": True,
-        "dedicatedMasterType": "t2.medium.elasticsearch",
-        "instanceCount": 2,
-        "instanceType": "t2.medium.elasticsearch",
-        "zoneAwarenessEnabled": True
-      },
-      ebs_options={
-        "ebsEnabled": True,
-        "volumeSize": 10,
-        "volumeType": "gp2"
-      },
+
+    master_user_secret = aws_secretsmanager.Secret(self, "OpenSearchMasterUserSecret",
+      generate_secret_string=aws_secretsmanager.SecretStringGenerator(
+        secret_string_template=json.dumps({"username": "admin"}),
+        generate_string_key="password",
+        # Master password must be at least 8 characters long and contain at least one uppercase letter,
+        # one lowercase letter, one number, and one special character.
+        password_length=8
+      )
+    )
+
+    #XXX: aws cdk elastsearch example - https://github.com/aws/aws-cdk/issues/2873
+    # You should camelCase the property names instead of PascalCase
+    es_cfn_domain = aws_opensearchservice.Domain(self, "OpenSearch",
       domain_name=es_domain_name,
-      elasticsearch_version="7.8",
-      encryption_at_rest_options={
-        "enabled": False
+      version=aws_opensearchservice.EngineVersion.OPENSEARCH_1_3,
+      capacity={
+        "master_nodes": 3,
+        "master_node_instance_type": "r6g.large.search",
+        "data_nodes": 3,
+        "data_node_instance_type": "r6g.large.search"
       },
-      access_policies={
-        "Version": "2012-10-17",
-        "Statement": [{
-            "Effect": "Allow",
-            "Principal": {
-              "AWS": "*"
-            },
-            "Action": [
-              "es:Describe*",
-              "es:List*",
-              "es:Get*",
-              "es:ESHttp*"
-            ],
-            "Resource": self.format_arn(service="es", resource="domain", resource_name="{}/*".format(es_domain_name))
-          }
-        ]
+      ebs={
+        "volume_size": 10,
+        "volume_type": aws_ec2.EbsDeviceVolumeType.GP2
       },
-      snapshot_options={
-        "automatedSnapshotStartHour": 17
+      #XXX: az_count must be equal to vpc subnets count.
+      zone_awareness={
+        "availability_zone_count": 3
       },
-      vpc_options={
-        "securityGroupIds": [sg_es.security_group_id],
-        "subnetIds": vpc.select_subnets(subnet_type=aws_ec2.SubnetType.PRIVATE_WITH_NAT).subnet_ids
-      }
+      logging={
+        "slow_search_log_enabled": True,
+        "app_log_enabled": True,
+        "slow_index_log_enabled": True
+      },
+      fine_grained_access_control=aws_opensearchservice.AdvancedSecurityOptions(
+        master_user_name=master_user_secret.secret_value_from_json("username").to_string(),
+        master_user_password=master_user_secret.secret_value_from_json("password")
+      ),
+      # Enforce HTTPS is required when fine-grained access control is enabled.
+      enforce_https=True,
+      # Node-to-node encryption is required when fine-grained access control is enabled
+      node_to_node_encryption=True,
+      # Encryption-at-rest is required when fine-grained access control is enabled.
+      encryption_at_rest={
+        "enabled": True
+      },
+      use_unsigned_basic_auth=True,
+      security_groups=[sg_es],
+      automated_snapshot_start_hour=17, # 2 AM (GTM+9)
+      vpc=vpc,
+      vpc_subnets=[aws_ec2.SubnetSelection(one_per_az=True, subnet_type=aws_ec2.SubnetType.PRIVATE_WITH_NAT)],
+      removal_policy=cdk.RemovalPolicy.DESTROY # default: cdk.RemovalPolicy.RETAIN
     )
     cdk.Tags.of(es_cfn_domain).add('Name', 'analytics-workshop-es')
 
@@ -251,7 +266,7 @@ class DataAnalyticsSystemStack(Stack):
       description="Upsert records into elasticsearch",
       code=_lambda.Code.from_asset("./src/main/python/UpsertToES"),
       environment={
-        'ES_HOST': es_cfn_domain.attr_domain_endpoint,
+        'ES_HOST': es_cfn_domain.domain_endpoint,
         #TODO: MUST set appropriate environment variables for your workloads.
         'ES_INDEX': 'retail',
         'ES_TYPE': 'trans',
@@ -347,5 +362,5 @@ class DataAnalyticsSystemStack(Stack):
 
     cdk.CfnOutput(self, 'BastionHostId', value=bastion_host.instance_id, export_name='BastionHostId')
     cdk.CfnOutput(self, 'BastionHostPublicDNSName', value=bastion_host.instance_public_dns_name, export_name='BastionHostPublicDNSName')
-    cdk.CfnOutput(self, 'ESDomainEndpoint', value=es_cfn_domain.attr_domain_endpoint, export_name='ESDomainEndpoint')
-    cdk.CfnOutput(self, 'ESDashboardsURL', value=f"{es_cfn_domain.attr_domain_endpoint}/_dashboards/", export_name='ESDashboardsURL')
+    cdk.CfnOutput(self, 'ESDomainEndpoint', value=es_cfn_domain.domain_endpoint, export_name='ESDomainEndpoint')
+    cdk.CfnOutput(self, 'ESDashboardsURL', value=f"{es_cfn_domain.domain_endpoint}/_dashboards/", export_name='ESDashboardsURL')
