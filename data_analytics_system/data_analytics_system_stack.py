@@ -90,21 +90,21 @@ class DataAnalyticsSystemStack(Stack):
     )
     cdk.Tags.of(sg_use_es).add('Name', 'use-es-cluster-sg')
 
-    sg_es = aws_ec2.SecurityGroup(self, "ElasticSearchSG",
+    sg_opensearch_cluster = aws_ec2.SecurityGroup(self, "ElasticSearchSG",
       vpc=vpc,
       allow_all_outbound=True,
       description='security group for an elasticsearch cluster',
       security_group_name='es-cluster-sg'
     )
-    cdk.Tags.of(sg_es).add('Name', 'es-cluster-sg')
+    cdk.Tags.of(sg_opensearch_cluster).add('Name', 'es-cluster-sg')
 
-    sg_es.add_ingress_rule(peer=sg_es, connection=aws_ec2.Port.all_tcp(), description='es-cluster-sg')
+    sg_opensearch_cluster.add_ingress_rule(peer=sg_opensearch_cluster, connection=aws_ec2.Port.all_tcp(), description='es-cluster-sg')
 
-    sg_es.add_ingress_rule(peer=sg_use_es, connection=aws_ec2.Port.tcp(443), description='use-es-cluster-sg')
-    sg_es.add_ingress_rule(peer=sg_use_es, connection=aws_ec2.Port.tcp_range(9200, 9300), description='use-es-cluster-sg')
+    sg_opensearch_cluster.add_ingress_rule(peer=sg_use_es, connection=aws_ec2.Port.tcp(443), description='use-es-cluster-sg')
+    sg_opensearch_cluster.add_ingress_rule(peer=sg_use_es, connection=aws_ec2.Port.tcp_range(9200, 9300), description='use-es-cluster-sg')
 
-    sg_es.add_ingress_rule(peer=sg_bastion_host, connection=aws_ec2.Port.tcp(443), description='bastion-host-sg')
-    sg_es.add_ingress_rule(peer=sg_bastion_host, connection=aws_ec2.Port.tcp_range(9200, 9300), description='bastion-host-sg')
+    sg_opensearch_cluster.add_ingress_rule(peer=sg_bastion_host, connection=aws_ec2.Port.tcp(443), description='bastion-host-sg')
+    sg_opensearch_cluster.add_ingress_rule(peer=sg_bastion_host, connection=aws_ec2.Port.tcp_range(9200, 9300), description='bastion-host-sg')
 
     s3_bucket = s3.Bucket(self, "s3bucket",
       bucket_name="aws-analytics-immersion-day-{region}-{account}".format(
@@ -238,7 +238,7 @@ class DataAnalyticsSystemStack(Stack):
         "enabled": True
       },
       use_unsigned_basic_auth=True,
-      security_groups=[sg_es],
+      security_groups=[sg_opensearch_cluster],
       automated_snapshot_start_hour=17, # 2 AM (GTM+9)
       vpc=vpc,
       vpc_subnets=[aws_ec2.SubnetSelection(one_per_az=True, subnet_type=aws_ec2.SubnetType.PRIVATE_WITH_NAT)],
