@@ -6,13 +6,55 @@ import os
 
 import aws_cdk as cdk
 
-from data_analytics_system.data_analytics_system_stack import DataAnalyticsSystemStack
+from data_analytics_system.vpc import VpcStack
+from data_analytics_system.bastion_host import BastionHostStack
+from data_analytics_system.kds import KinesisDataStreamStack
+from data_analytics_system.ops import OpenSearchStack
+from data_analytics_system.firehose import KinesisFirehoseStack
+from data_analytics_system.upsert_to_es_lambda import UpsertToESStack
+from data_analytics_system.merge_small_files_lambda import MergeSmallFilesLambdaStack
 
 ACCOUNT = os.getenv('CDK_DEFAULT_ACCOUNT', '')
 REGION = os.getenv('CDK_DEFAULT_REGION', 'us-east-1')
 AWS_ENV = cdk.Environment(account=ACCOUNT, region=REGION)
 
 app = cdk.App()
-DataAnalyticsSystemStack(app, "data-analytics-system", env=AWS_ENV)
+vpc_stack = VpcStack(app, 'DataAnalyticsVpcStack',
+  env=AWS_ENV)
+
+bastion_host_stack = BastionHostStack(app, 'DataAnalyticsBastionHostStack',
+  vpc_stack.vpc,
+  #XXX: YOU SHOULD pass `region` and `account` values in the `env` of the StackProps
+  # in order to prevent the following error:
+  #   Cross stack references are only supported for stacks deployed
+  # to the same environment or between nested stacks and their parent stack
+  env=AWS_ENV)
+
+kds_stack = KinesisDataStreamStack(app, 'DataAnalyticsKinesisStreamStack')
+
+firehose_stack = KinesisFirehoseStack(app, 'DataAnalyticsFirehoseStack',
+  kds_stack.kinesis_stream)
+
+ops_stack = OpenSearchStack(app, 'DataAnalyticsOpenSearchStack',
+  vpc_stack.vpc,
+  bastion_host_stack.sg_bastion_host,
+  #XXX: YOU SHOULD pass `region` and `account` values in the `env` of the StackProps
+  # in order to prevent the following error:
+  #   Cross stack references are only supported for stacks deployed
+  # to the same environment or between nested stacks and their parent stack
+  env=AWS_ENV)
+
+upsert_to_es_stack = UpsertToESStack(app, 'DataAnalyticsUpsertToESStack',
+  vpc_stack.vpc,
+  kds_stack.kinesis_stream,
+  ops_stack.sg_use_opensearch,
+  ops_stack.ops_domain_endpoint,
+  env=AWS_ENV
+)
+
+merge_small_files_stack = MergeSmallFilesLambdaStack(app, 'DataAnalyticsMergeSmallFilesStack',
+  firehose_stack.s3_bucket_name
+)
 
 app.synth()
+
