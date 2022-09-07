@@ -37,6 +37,19 @@ class DataAnalyticsSystemStack(Stack):
   def __init__(self, scope: Construct, construct_id: str, **kwargs) -> None:
     super().__init__(scope, construct_id, **kwargs)
 
+    #XXX: For creating this CDK Stack in the existing VPC,
+    # remove comments from the below codes and
+    # comments out vpc = aws_ec2.Vpc(..) codes,
+    # then pass -c vpc_name=your-existing-vpc to cdk command
+    # for example,
+    # cdk -c vpc_name=your-existing-vpc syth
+    #
+    # vpc_name = self.node.try_get_context('vpc_name')
+    # vpc = aws_ec2.Vpc.from_lookup(self, 'ExistingVPC',
+    #   is_default=True,
+    #   vpc_name=vpc_name
+    # )
+
     vpc = aws_ec2.Vpc(self, "AnalyticsWorkshopVPC",
       max_azs=3,
       gateway_endpoints={
@@ -218,7 +231,8 @@ class DataAnalyticsSystemStack(Stack):
       },
       #XXX: az_count must be equal to vpc subnets count.
       zone_awareness={
-        "availability_zone_count": 3
+        "availability_zone_count": 3,
+        "enabled": True
       },
       logging={
         "slow_search_log_enabled": True,
@@ -241,6 +255,7 @@ class DataAnalyticsSystemStack(Stack):
       security_groups=[sg_opensearch_cluster],
       automated_snapshot_start_hour=17, # 2 AM (GTM+9)
       vpc=vpc,
+      #XXX: az_count must be equal to vpc subnets count.
       vpc_subnets=[aws_ec2.SubnetSelection(one_per_az=True, subnet_type=aws_ec2.SubnetType.PRIVATE_WITH_NAT)],
       removal_policy=cdk.RemovalPolicy.DESTROY # default: cdk.RemovalPolicy.RETAIN
     )
