@@ -102,8 +102,8 @@ class OpenSearchStack(Stack):
     )
     cdk.Tags.of(ops_domain).add('Name', 'analytics-workshop-es')
 
-    self.sg_use_opensearch = sg_use_opensearch
-    self.ops_domain_endpoint = ops_domain.domain_endpoint
+    self.sg_search_client = sg_use_opensearch
+    self.search_domain_endpoint = ops_domain.domain_endpoint
 
-    cdk.CfnOutput(self, 'OPSDomainEndpoint', value=self.ops_domain_endpoint, export_name='OPSDomainEndpoint')
-    cdk.CfnOutput(self, 'OPSDashboardsURL', value=f"{self.ops_domain_endpoint}/_dashboards/", export_name='OPSDashboardsURL')
+    cdk.CfnOutput(self, 'OPSDomainEndpoint', value=self.search_domain_endpoint, export_name='OPSDomainEndpoint')
+    cdk.CfnOutput(self, 'OPSDashboardsURL', value=f"{self.search_domain_endpoint}/_dashboards/", export_name='OPSDashboardsURL')

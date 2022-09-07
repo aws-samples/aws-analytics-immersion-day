@@ -9,7 +9,8 @@ import aws_cdk as cdk
 from data_analytics_system.vpc import VpcStack
 from data_analytics_system.bastion_host import BastionHostStack
 from data_analytics_system.kds import KinesisDataStreamStack
-from data_analytics_system.ops import OpenSearchStack
+from data_analytics_system.elasticsearch import ElasticSearchStack
+# from data_analytics_system.ops import OpenSearchStack
 from data_analytics_system.firehose import KinesisFirehoseStack
 from data_analytics_system.upsert_to_es_lambda import UpsertToESStack
 from data_analytics_system.merge_small_files_lambda import MergeSmallFilesLambdaStack
@@ -35,7 +36,7 @@ kds_stack = KinesisDataStreamStack(app, 'DataAnalyticsKinesisStreamStack')
 firehose_stack = KinesisFirehoseStack(app, 'DataAnalyticsFirehoseStack',
   kds_stack.kinesis_stream)
 
-ops_stack = OpenSearchStack(app, 'DataAnalyticsOpenSearchStack',
+es_stack = ElasticSearchStack(app, 'DataAnalyticsElasticSearchStack',
   vpc_stack.vpc,
   bastion_host_stack.sg_bastion_host,
   #XXX: YOU SHOULD pass `region` and `account` values in the `env` of the StackProps
@@ -44,11 +45,22 @@ ops_stack = OpenSearchStack(app, 'DataAnalyticsOpenSearchStack',
   # to the same environment or between nested stacks and their parent stack
   env=AWS_ENV)
 
+# ops_stack = OpenSearchStack(app, 'DataAnalyticsOpenSearchStack',
+#   vpc_stack.vpc,
+#   bastion_host_stack.sg_bastion_host,
+#   #XXX: YOU SHOULD pass `region` and `account` values in the `env` of the StackProps
+#   # in order to prevent the following error:
+#   #   Cross stack references are only supported for stacks deployed
+#   # to the same environment or between nested stacks and their parent stack
+#   env=AWS_ENV)
+
 upsert_to_es_stack = UpsertToESStack(app, 'DataAnalyticsUpsertToESStack',
   vpc_stack.vpc,
   kds_stack.kinesis_stream,
-  ops_stack.sg_use_opensearch,
-  ops_stack.ops_domain_endpoint,
+  es_stack.sg_search_client,
+  es_stack.search_domain_endpoint,
+  # ops_stack.sg_search_client,
+  # ops_stack.search_domain_endpoint,
   env=AWS_ENV
 )
 
