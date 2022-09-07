@@ -55,3 +55,5 @@ class BastionHostStack(Stack):
     self.sg_bastion_host = sg_bastion_host
 
     cdk.CfnOutput(self, 'BastionHostId', value=bastion_host.instance_id, export_name='BastionHostId')
+    cdk.CfnOutput(self, 'BastionHostPublicDNSName', value=bastion_host.instance_public_dns_name, export_name='BastionHostPublicDNSName')
+
