@@ -650,7 +650,7 @@ Introducing how to deploy using the AWS CDK.
    ex)
     ```shell script
     $ cdk --version
-    2.10.0 (build e5b301f)
+    2.40.0 (build 56ba2ab)
     ```
 
 ##### Useful commands

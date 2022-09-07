@@ -687,7 +687,7 @@ AWS CDK를 이용해서 배포하는 방법을 소개 합니다.
    예)
     ```shell script
     $ cdk --version
-    2.10.0 (build e5b301f)
+    2.40.0 (build 56ba2ab)
     ```
 
 ##### Useful commands
