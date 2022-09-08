@@ -39,12 +39,14 @@ class ElasticSearchStack(Stack):
     #XXX: aws cdk elastsearch example - https://github.com/aws/aws-cdk/issues/2873
     es_domain_name = 'retail'
     es_cfn_domain = aws_elasticsearch.CfnDomain(self, "ElasticSearch",
+      #XXX: Amazon OpenSearch Service - Current generation instance types
+      # https://docs.aws.amazon.com/opensearch-service/latest/developerguide/supported-instance-types.html#latest-gen
       elasticsearch_cluster_config={
         "dedicatedMasterCount": 3,
         "dedicatedMasterEnabled": True,
-        "dedicatedMasterType": "t2.medium.elasticsearch",
+        "dedicatedMasterType": "t3.medium.elasticsearch",
         "instanceCount": 3,
-        "instanceType": "t2.medium.elasticsearch",
+        "instanceType": "t3.medium.elasticsearch",
         "zoneAwarenessConfig": {
           #XXX: az_count must be equal to vpc subnets count.
           "availabilityZoneCount": 3,

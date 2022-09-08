@@ -60,6 +60,8 @@ class OpenSearchStack(Stack):
     ops_domain = aws_opensearchservice.Domain(self, "OpenSearch",
       domain_name=ops_domain_name,
       version=aws_opensearchservice.EngineVersion.OPENSEARCH_1_3,
+      #XXX: Amazon OpenSearch Service - Current generation instance types
+      # https://docs.aws.amazon.com/opensearch-service/latest/developerguide/supported-instance-types.html#latest-gen
       capacity={
         "master_nodes": 3,
         "master_node_instance_type": "r6g.large.search",
