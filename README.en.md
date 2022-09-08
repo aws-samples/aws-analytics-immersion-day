@@ -650,7 +650,7 @@ Introducing how to deploy using the AWS CDK.
    ex)
     ```shell script
     $ cdk --version
-    2.40.0 (build 56ba2ab)
+    2.41.0 (build 56ba2ab)
     ```
 
 ##### Useful commands
@@ -702,7 +702,7 @@ After setting, deploy using the `cdk deploy` command.
     (.env) $ export CDK_DEFAULT_REGION=us-west-2
     (.env) $ cdk bootstrap aws://${CDK_DEFAULT_ACCOUNT}/${CDK_DEFAULT_REGION}
     (.env) $ export S3_BUCKET_LAMBDA_LAYER_LIB=lambda-layer-resources
-    (.env) $ cdk --profile cdk_user deploy
+    (.env) $ cdk --profile cdk_user deploy --require-approval never --all
     ```
 
    :white_check_mark: `cdk bootstrap ...` command is executed only once for the first time to deploy **CDK toolkit stack**, and for subsequent deployments, you only need to execute `cdk deploy` command without distributing **CDK toolkit stack**.

@@ -687,7 +687,7 @@ AWS CDK를 이용해서 배포하는 방법을 소개 합니다.
    예)
     ```shell script
     $ cdk --version
-    2.40.0 (build 56ba2ab)
+    2.41.0 (build 56ba2ab)
     ```
 
 ##### Useful commands
@@ -740,7 +740,7 @@ cdk를 실행할 때 사용할 IAM User를 생성한 후, `~/.aws/config`에 등
     (.env) $ export CDK_DEFAULT_REGION=us-west-2
     (.env) $ cdk bootstrap aws://${CDK_DEFAULT_ACCOUNT}/${CDK_DEFAULT_REGION}
     (.env) $ export S3_BUCKET_LAMBDA_LAYER_LIB=lambda-layer-resources
-    (.env) $ cdk --profile cdk_user deploy
+    (.env) $ cdk --profile cdk_user deploy --require-approval never --all
     ```
 
    :white_check_mark: `cdk bootstrap ...` 명령어는 CDK toolkit stack 배포를 위해 최초 한번만 실행 하고, 이후에 배포할 때는 CDK toolkit stack 배포 없이 `cdk deploy` 명령어만 수행하면 됩니다.

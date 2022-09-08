@@ -48,7 +48,7 @@ search_stack = ElasticSearchStack(app, 'DataAnalyticsElasticSearchStack',
 
 #XXX: For using Amazon OpenSearch Service,
 # remove comments from both the below codes and the dependent codes,
-# then comments out `search_stack = ElasticSearchStack(...)`` codes
+# then comments out `search_stack = ElasticSearchStack(...)` codes
 #
 # search_stack = OpenSearchStack(app, 'DataAnalyticsOpenSearchStack',
 #   vpc_stack.vpc,
