@@ -10,6 +10,7 @@ from data_analytics_system.vpc import VpcStack
 from data_analytics_system.bastion_host import BastionHostStack
 from data_analytics_system.kds import KinesisDataStreamStack
 from data_analytics_system.elasticsearch import ElasticSearchStack
+#XXX: For using Amazon OpenSearch Service, remove comments from both the below code
 # from data_analytics_system.ops import OpenSearchStack
 from data_analytics_system.firehose import KinesisFirehoseStack
 from data_analytics_system.upsert_to_es_lambda import UpsertToESStack
@@ -36,7 +37,7 @@ kds_stack = KinesisDataStreamStack(app, 'DataAnalyticsKinesisStreamStack')
 firehose_stack = KinesisFirehoseStack(app, 'DataAnalyticsFirehoseStack',
   kds_stack.kinesis_stream)
 
-es_stack = ElasticSearchStack(app, 'DataAnalyticsElasticSearchStack',
+search_stack = ElasticSearchStack(app, 'DataAnalyticsElasticSearchStack',
   vpc_stack.vpc,
   bastion_host_stack.sg_bastion_host,
   #XXX: YOU SHOULD pass `region` and `account` values in the `env` of the StackProps
@@ -45,7 +46,11 @@ es_stack = ElasticSearchStack(app, 'DataAnalyticsElasticSearchStack',
   # to the same environment or between nested stacks and their parent stack
   env=AWS_ENV)
 
-# ops_stack = OpenSearchStack(app, 'DataAnalyticsOpenSearchStack',
+#XXX: For using Amazon OpenSearch Service,
+# remove comments from both the below codes and the dependent codes,
+# then comments out `search_stack = ElasticSearchStack(...)`` codes
+#
+# search_stack = OpenSearchStack(app, 'DataAnalyticsOpenSearchStack',
 #   vpc_stack.vpc,
 #   bastion_host_stack.sg_bastion_host,
 #   #XXX: YOU SHOULD pass `region` and `account` values in the `env` of the StackProps
@@ -57,10 +62,8 @@ es_stack = ElasticSearchStack(app, 'DataAnalyticsElasticSearchStack',
 upsert_to_es_stack = UpsertToESStack(app, 'DataAnalyticsUpsertToESStack',
   vpc_stack.vpc,
   kds_stack.kinesis_stream,
-  es_stack.sg_search_client,
-  es_stack.search_domain_endpoint,
-  # ops_stack.sg_search_client,
-  # ops_stack.search_domain_endpoint,
+  search_stack.sg_search_client,
+  search_stack.search_domain_endpoint,
   env=AWS_ENV
 )
 
