@@ -56,10 +56,12 @@ class ElasticSearchStack(Stack):
       ebs_options={
         "ebsEnabled": True,
         "volumeSize": 10,
-        "volumeType": "gp2"
+        "volumeType": "gp3"
       },
       domain_name=es_domain_name,
-      elasticsearch_version="7.8",
+      #XXX: Supported versions of OpenSearch and Elasticsearch
+      # https://docs.aws.amazon.com/opensearch-service/latest/developerguide/what-is.html#choosing-version
+      elasticsearch_version="7.10",
       encryption_at_rest_options={
         "enabled": False
       },
@@ -80,9 +82,11 @@ class ElasticSearchStack(Stack):
           }
         ]
       },
-      snapshot_options={
-        "automatedSnapshotStartHour": 17
-      },
+      #XXX: For domains running OpenSearch or Elasticsearch 5.3 and later, OpenSearch Service takes hourly automated snapshots
+      # Only applies for Elasticsearch versions below 5.3
+      # snapshot_options={
+      #   "automatedSnapshotStartHour": 17
+      # },
       vpc_options={
         "securityGroupIds": [sg_es.security_group_id],
         #XXX: az_count must be equal to vpc subnets count.
