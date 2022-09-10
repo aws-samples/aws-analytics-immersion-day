@@ -103,7 +103,7 @@ class OpenSearchStack(Stack):
       # automated_snapshot_start_hour=17, # 2 AM (GTM+9)
       vpc=vpc,
       #XXX: az_count must be equal to vpc subnets count.
-      vpc_subnets=[aws_ec2.SubnetSelection(one_per_az=True, subnet_type=aws_ec2.SubnetType.PRIVATE_WITH_NAT)],
+      vpc_subnets=[aws_ec2.SubnetSelection(one_per_az=True, subnet_type=aws_ec2.SubnetType.PRIVATE_WITH_EGRESS)],
       removal_policy=cdk.RemovalPolicy.DESTROY # default: cdk.RemovalPolicy.RETAIN
     )
     cdk.Tags.of(ops_domain).add('Name', 'analytics-workshop-es')
