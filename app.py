@@ -12,7 +12,7 @@ from data_analytics_system import (
   KinesisDataStreamStack,
   ElasticSearchStack,
   ##XXX: For using Amazon OpenSearch Service, remove comments from both the below code
-  OpenSearchStack,
+  # OpenSearchStack,
   KinesisFirehoseStack,
   UpsertToESStack,
   MergeSmallFilesLambdaStack
