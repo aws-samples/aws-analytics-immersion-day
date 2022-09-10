@@ -6,15 +6,17 @@ import os
 
 import aws_cdk as cdk
 
-from data_analytics_system.vpc import VpcStack
-from data_analytics_system.bastion_host import BastionHostStack
-from data_analytics_system.kds import KinesisDataStreamStack
-from data_analytics_system.elasticsearch import ElasticSearchStack
-#XXX: For using Amazon OpenSearch Service, remove comments from both the below code
-# from data_analytics_system.ops import OpenSearchStack
-from data_analytics_system.firehose import KinesisFirehoseStack
-from data_analytics_system.upsert_to_es_lambda import UpsertToESStack
-from data_analytics_system.merge_small_files_lambda import MergeSmallFilesLambdaStack
+from data_analytics_system import (
+  VpcStack,
+  BastionHostStack,
+  KinesisDataStreamStack,
+  ElasticSearchStack,
+  ##XXX: For using Amazon OpenSearch Service, remove comments from both the below code
+  OpenSearchStack,
+  KinesisFirehoseStack,
+  UpsertToESStack,
+  MergeSmallFilesLambdaStack
+)
 
 ACCOUNT = os.getenv('CDK_DEFAULT_ACCOUNT', '')
 REGION = os.getenv('CDK_DEFAULT_REGION', 'us-east-1')
