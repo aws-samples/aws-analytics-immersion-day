@@ -3,7 +3,7 @@
 The purpose of this lab is to implement a Businesss Intelligence(BI) System using AWS Analytics Services.<br/>
 Through this lab, you will set up a `Data Collection -> Store -> Analysis/Processing -> Visualization` pipeline.
 
-* Read this in other languages: [English](README.en.md), [Korea(한국어)](README.md)
+* Read this in other languages: [English](README.md), [Korea(한국어)](README.kr.md)
 
 ## Table of Contents
 * [Solutions Architecture Overview](#solutions-architecture-overview)
