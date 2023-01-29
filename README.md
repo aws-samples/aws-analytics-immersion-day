@@ -523,7 +523,7 @@ Through this lab, we have built a Business Intelligent System with Lambda Archit
 \[[Top](#top)\]
 
 ## Resources
-+ slide: [AWS Analytics Immersion Day - Build BI System from Scratch](https://www.slideshare.net/ksmin23/aws-analytics-immersion-day-build-bi-system-from-scratch-230492367)
++ slide: [AWS Analytics Immersion Day - Build BI System from Scratch](http://tinyurl.com/serverless-bi-on-aws)
 + data source: [Online Retail II Data Set](https://archive.ics.uci.edu/ml/datasets/Online+Retail+II)
 
 \[[Top](#Top)\]
