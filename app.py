@@ -33,11 +33,14 @@ bastion_host_stack = BastionHostStack(app, 'DataAnalyticsBastionHostStack',
   #   Cross stack references are only supported for stacks deployed
   # to the same environment or between nested stacks and their parent stack
   env=AWS_ENV)
+bastion_host_stack.add_dependency(vpc_stack)
 
 kds_stack = KinesisDataStreamStack(app, 'DataAnalyticsKinesisStreamStack')
+kds_stack.add_dependency(vpc_stack)
 
 firehose_stack = KinesisFirehoseStack(app, 'DataAnalyticsFirehoseStack',
   kds_stack.kinesis_stream)
+firehose_stack.add_dependency(kds_stack)
 
 search_stack = ElasticSearchStack(app, 'DataAnalyticsElasticSearchStack',
   vpc_stack.vpc,
@@ -60,6 +63,7 @@ search_stack = ElasticSearchStack(app, 'DataAnalyticsElasticSearchStack',
 #   #   Cross stack references are only supported for stacks deployed
 #   # to the same environment or between nested stacks and their parent stack
 #   env=AWS_ENV)
+search_stack.add_dependency(firehose_stack)
 
 upsert_to_es_stack = UpsertToESStack(app, 'DataAnalyticsUpsertToESStack',
   vpc_stack.vpc,
@@ -68,10 +72,12 @@ upsert_to_es_stack = UpsertToESStack(app, 'DataAnalyticsUpsertToESStack',
   search_stack.search_domain_endpoint,
   env=AWS_ENV
 )
+upsert_to_es_stack.add_dependency(search_stack)
 
 merge_small_files_stack = MergeSmallFilesLambdaStack(app, 'DataAnalyticsMergeSmallFilesStack',
   firehose_stack.s3_bucket_name
 )
+merge_small_files_stack.add_dependency(upsert_to_es_stack)
 
 app.synth()
 
