@@ -10,12 +10,14 @@ from data_analytics_system import (
   VpcStack,
   BastionHostStack,
   KinesisDataStreamStack,
-  ElasticSearchStack,
+  # ElasticSearchStack,
   ##XXX: For using Amazon OpenSearch Service, remove comments from both the below code
-  # OpenSearchStack,
+  OpenSearchStack,
   KinesisFirehoseStack,
   UpsertToESStack,
-  MergeSmallFilesLambdaStack
+  MergeSmallFilesLambdaStack,
+  GlueCatalogDatabaseStack,
+  DataLakePermissionsStack
 )
 
 ACCOUNT = os.getenv('CDK_DEFAULT_ACCOUNT', '')
@@ -42,20 +44,7 @@ firehose_stack = KinesisFirehoseStack(app, 'DataAnalyticsFirehoseStack',
   kds_stack.kinesis_stream)
 firehose_stack.add_dependency(kds_stack)
 
-search_stack = ElasticSearchStack(app, 'DataAnalyticsElasticSearchStack',
-  vpc_stack.vpc,
-  bastion_host_stack.sg_bastion_host,
-  #XXX: YOU SHOULD pass `region` and `account` values in the `env` of the StackProps
-  # in order to prevent the following error:
-  #   Cross stack references are only supported for stacks deployed
-  # to the same environment or between nested stacks and their parent stack
-  env=AWS_ENV)
-
-#XXX: For using Amazon OpenSearch Service,
-# remove comments from both the below codes and the dependent codes,
-# then comments out `search_stack = ElasticSearchStack(...)` codes
-#
-# search_stack = OpenSearchStack(app, 'DataAnalyticsOpenSearchStack',
+# search_stack = ElasticSearchStack(app, 'DataAnalyticsElasticSearchStack',
 #   vpc_stack.vpc,
 #   bastion_host_stack.sg_bastion_host,
 #   #XXX: YOU SHOULD pass `region` and `account` values in the `env` of the StackProps
@@ -63,6 +52,19 @@ search_stack = ElasticSearchStack(app, 'DataAnalyticsElasticSearchStack',
 #   #   Cross stack references are only supported for stacks deployed
 #   # to the same environment or between nested stacks and their parent stack
 #   env=AWS_ENV)
+
+#XXX: For using Amazon OpenSearch Service,
+# remove comments from both the below codes and the dependent codes,
+# then comments out `search_stack = ElasticSearchStack(...)` codes
+#
+search_stack = OpenSearchStack(app, 'DataAnalyticsOpenSearchStack',
+  vpc_stack.vpc,
+  bastion_host_stack.sg_bastion_host,
+  #XXX: YOU SHOULD pass `region` and `account` values in the `env` of the StackProps
+  # in order to prevent the following error:
+  #   Cross stack references are only supported for stacks deployed
+  # to the same environment or between nested stacks and their parent stack
+  env=AWS_ENV)
 search_stack.add_dependency(firehose_stack)
 
 upsert_to_es_stack = UpsertToESStack(app, 'DataAnalyticsUpsertToESStack',
@@ -78,6 +80,15 @@ merge_small_files_stack = MergeSmallFilesLambdaStack(app, 'DataAnalyticsMergeSma
   firehose_stack.s3_bucket_name
 )
 merge_small_files_stack.add_dependency(upsert_to_es_stack)
+
+athena_databases = GlueCatalogDatabaseStack(app, 'DataAnalyticsGlueDatabases')
+athena_databases.add_dependency(merge_small_files_stack)
+
+lakeformation_grant_permissions = DataLakePermissionsStack(app,
+  'DataAnalyticsGrantLFPermissionsOnMergeFilesJob',
+  merge_small_files_stack.lambda_exec_role
+)
+lakeformation_grant_permissions.add_dependency(athena_databases)
 
 app.synth()
 

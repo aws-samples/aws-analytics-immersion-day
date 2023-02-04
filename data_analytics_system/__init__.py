@@ -6,3 +6,5 @@ from .ops import OpenSearchStack
 from .firehose import KinesisFirehoseStack
 from .upsert_to_es_lambda import UpsertToESStack
 from .merge_small_files_lambda import MergeSmallFilesLambdaStack
+from .glue_catalog_database import GlueCatalogDatabaseStack
+from .lake_formation import DataLakePermissionsStack

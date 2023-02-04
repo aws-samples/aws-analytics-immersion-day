@@ -221,7 +221,7 @@ if __name__ == '__main__':
     "time": options.basic_datetime, # ex) "2020-02-28T03:05:00Z"
     "region": AWS_REGION, # ex) "us-east-1"
     "resources": [
-      "arn:aws:events:us-east-1:123456789012:rule/ExampleRule"
+      f"arn:aws:events:{AWS_REGION}:123456789012:rule/ExampleRule"
     ],
     "detail": {}
   }

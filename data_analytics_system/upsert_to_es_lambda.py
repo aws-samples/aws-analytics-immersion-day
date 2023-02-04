@@ -64,5 +64,6 @@ class UpsertToESStack(Stack):
 
     log_group = aws_logs.LogGroup(self, "UpsertToESLogGroup",
       log_group_name="/aws/lambda/UpsertToES",
+      removal_policy=cdk.RemovalPolicy.DESTROY, #XXX: for testing
       retention=aws_logs.RetentionDays.THREE_DAYS)
     log_group.grant_write(upsert_to_es_lambda_fn)
