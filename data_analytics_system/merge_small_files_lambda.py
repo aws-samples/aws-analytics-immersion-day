@@ -28,6 +28,8 @@ class MergeSmallFilesLambdaStack(Stack):
       description="Merge small files in S3",
       code=_lambda.Code.from_asset("./src/main/python/MergeSmallFiles"),
       environment={
+        'REGION_NAME': cdk.Aws.REGION,
+
         #TODO: MUST set appropriate environment variables for your workloads.
         'OLD_DATABASE': 'mydatabase',
         'OLD_TABLE_NAME': 'retail_trans_json',
