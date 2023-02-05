@@ -1,0 +1,10 @@
+{
+  "merge_small_files_lambda_env": {
+    "OLD_DATABASE": "mydatabase",
+    "OLD_TABLE_NAME": "retail_trans_json",
+    "NEW_DATABASE": "mydatabase",
+    "NEW_TABLE_NAME": "ctas_retail_trans_parquet",
+    "NEW_TABLE_S3_FOLDER_NAME": "parquet-retail-trans",
+    "COLUMN_NAMES": "invoice,stockcode,description,quantity,invoicedate,price,customer_id,country"
+  }
+}
