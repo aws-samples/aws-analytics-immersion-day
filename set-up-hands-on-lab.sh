@@ -11,6 +11,7 @@ then
 
   sudo pip-3.6 install -U boto3
   sudo pip-3.6 install csvkit
+  sudo pip-3.6 install mimesis==4.1.3
 elif [[ z"${OS_NAME}" == z"\"Amazon Linux\"" ]];
 then
   sudo yum -y update
@@ -18,6 +19,7 @@ then
 
   sudo pip3 install -U boto3
   sudo pip3 install csvkit
+  sudo pip3 install mimesis==4.1.3
 elif [[ z"${OS_NAME}" == z"\"Ubuntu\"" ]];
 then
   sudo apt-get -y update
@@ -26,6 +28,7 @@ then
 
   sudo pip3 install -U boto3
   sudo pip3 install csvkit
+  sudo pip3 install mimesis==4.1.3
 else
   echo "[Unknown OS] You should install python3.6+, pip3+ for yourself!"
   exit 0
@@ -34,13 +37,4 @@ fi
 ln -sf ${WORK_DIR}/src/main/python/UpsertToES/upsert_to_es.py ${TARGET_DIR}/upsert_to_es.py
 ln -sf ${WORK_DIR}/src/main/python/MergeSmallFiles/athena_ctas.py ${TARGET_DIR}/athena_ctas.py
 ln -sf ${WORK_DIR}/src/main/python/utils/gen_kinesis_data.py ${TARGET_DIR}/gen_kinesis_data.py
-
-mkdir -p ${WORK_DIR}/resources
-pushd ${WORK_DIR}/resources
-wget 'https://archive.ics.uci.edu/ml/machine-learning-databases/00502/online_retail_II.xlsx'
-in2csv online_retail_II.xlsx > online_retail.csv
-head online_retail.csv > sample_online_retail.csv
-popd
-
-ln -sf ${WORK_DIR}/resources ${TARGET_DIR}/resources
 

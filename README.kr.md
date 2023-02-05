@@ -96,36 +96,14 @@ S3 bucket 이름은 이번 실습에서는 `aws-analytics-immersion-day-xxxxxxxx
 1. 앞서 생성한 E2 인스턴스에 SSH 접속을 합니다.
 2. `gen_kinesis_data.py`을 실행합니다.
     ```shell script
-    $ python3 gen_kinesis_data.py --help
-    usage: gen_kinesis_data.py [-h]
-               [--region-name REGION_NAME]
-               -I INPUT_FILE
-               [--out-format {csv,tsv,json}]
-               [--service-name {kinesis,firehose}]
-               [--stream-name STREAM_NAME]
-               [--max-count MAX_COUNT]
-               [--dry-run]
-
-    optional arguments:
-      -h, --help            show this help message and exit
-      --region-name REGION_NAME
-                            aws region name (default: us-east-1)
-      -I INPUT_FILE, --input-file INPUT_FILE
-                            The input file path ex)
-                            ./resources/online_retail.csv
-      --out-format {csv,tsv,json}
-      --service-name {kinesis,firehose}
-      --stream-name STREAM_NAME
-                            The name of the stream to put the data record into.
-      --max-count MAX_COUNT
-                            The max number of records to put.
-      --dry-run
-    
-    $ python3 gen_kinesis_data.py -I resources/online_retail.csv \
-    --region-name us-west-2 \
-    --service-name kinesis \
-    --out-format json \
-    --stream-name retail-trans
+    python3 gen_kinesis_data.py \
+      --region-name us-west-2 \
+      --service-name kinesis \
+      --stream-name retail-trans
+    ```
+    `gen_kinesis_data.py` 자세한 사용법은 `--help` 옵션을 이용해서 확인할 수 있습니다.
+    ```shell script
+    python3 gen_kinesis_data.py --help
     ```
 3. 매 초 데이터가 발생하는 것을 확인합니다. 충분한 데이터 수집을 위해 실행 중인 상태로 다음 단계를 진행합니다.
 4. 몇 분 뒤 생성한 S3 bucket을 확인해 보면, 생성된 원본 데이터가 Kinesis Data Firehose를 통해 S3에 저장되는 것을 확인할 수 있습니다. 

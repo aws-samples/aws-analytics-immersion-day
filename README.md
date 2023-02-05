@@ -92,10 +92,9 @@ In this step, we will generate sample data and verify it is being processed and 
 1. Connect SSH to the previously created E2 instance. You can go to the AWS Console and click the **Connect** button on the instance details page, or SSH from your local machine command line using the key pair you downloaded.
 2. Run `gen_kinesis_data.py` script on the EC2 instance by entering the following command -
     ```shell script
-    python3 gen_kinesis_data.py -I resources/online_retail.csv \
+    python3 gen_kinesis_data.py \
       --region-name us-west-2 \
       --service-name kinesis \
-      --out-format json \
       --stream-name retail-trans
     ```
     If you would like to know more about the usage of this command, you can type

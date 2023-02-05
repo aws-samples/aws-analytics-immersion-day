@@ -3,74 +3,91 @@
 # vim: tabstop=2 shiftwidth=2 softtabstop=2 expandtab
 
 import sys
-import csv
 import json
 import argparse
-from collections import OrderedDict
-import base64
+import string
 import traceback
 import random
 import time
+import typing
 import datetime
 
 import boto3
 
+import mimesis
+
+# Mimesis 5.0 supports Python 3.8, 3.9, and 3.10.
+# The Mimesis 4.1.3 is the last to support Python 3.6 and 3.7
+# For more information, see https://mimesis.name/en/latest/changelog.html#version-5-0-0
+assert mimesis.__version__ == '4.1.3'
+
+from mimesis import locales
+from mimesis.schema import Field, Schema
+from mimesis.providers.base import BaseProvider
+
 random.seed(47)
 
-SCHEMA_CONV_TOOL = {
-  "Invoice": str,
-  "StockCode": str,
-  "Description": str,
-  "Quantity": int,
-  "InvoiceDate": str,
-  "Price": float,
-  "Customer ID": str,
-  "Country": str
-}
 
-DELIMETER_BY_FORMAT = {
-  'csv': ',',
-  'tsv': '\t'
-}
+class CustomDatetimeProvider(BaseProvider):
+  class Meta:
+    """Class for metadata."""
+    name: typing.Final[str] = "custom_datetime"
 
+  def __init__(self, seed=47) -> None:
+    super().__init__(seed=seed)
+    self.random = random.Random(seed)
 
-def gen_records(options, reader):
-  def _adjust_date(dt):
-     n = len('yyyy-mm-dd_HH:')
-     today = datetime.datetime.today()
-     return '{}:{}'.format(today.strftime('%Y-%m-%d %H'), dt[n:])
+  def formated_datetime(self, fmt='%Y-%m-%dT%H:%M:%SZ', lt_now=False) -> str:
+    CURRENT_YEAR = datetime.datetime.now().year
+    CURRENT_MONTH = datetime.datetime.now().month
+    CURRENT_DAY = datetime.datetime.now().day
+    CURRENT_HOUR = datetime.datetime.now().hour
+    CURRENT_MINUTE = datetime.datetime.now().minute
+    CURRENT_SECOND = datetime.datetime.now().second
 
-  record_list = []
-  for row in reader:
-    is_skip = (random.randint(1, 47) % 19 < 5) if options.random_select else False
-    if is_skip:
-      continue
-
-    if int(row['Quantity']) <= 0:
-      continue
-
-    row['InvoiceDate'] = _adjust_date(row['InvoiceDate'])
-    if options.out_format in DELIMETER_BY_FORMAT:
-       delimeter = DELIMETER_BY_FORMAT[options.out_format]
-       data = delimeter.join([e for e in row.values()])
+    if lt_now:
+      random_time = datetime.time(
+        self.random.randint(0, CURRENT_HOUR),
+        self.random.randint(0, max(0, CURRENT_MINUTE-1)),
+        self.random.randint(0, max(0, CURRENT_SECOND-1)),
+        self.random.randint(0, 999999)
+      )
     else:
-      try:
-        data = json.dumps(OrderedDict([(k.replace(' ', '_'), SCHEMA_CONV_TOOL[k](v)) for k, v in row.items()]), ensure_ascii=False)
-      except Exception as ex:
-        traceback.print_exc()
-        continue
-    if options.max_count == len(record_list):
-      yield record_list
-      record_list = []
+      random_time = datetime.time(
+        CURRENT_HOUR,
+        CURRENT_MINUTE,
+        self.random.randint(CURRENT_SECOND, 59),
+        self.random.randint(0, 999999)
+      )
 
-    #XXX: When records aren't separated by a newline character (\n), SELECT COUNT(*) FROM TABLE returns "1." in Athena
-    #XXX: Therefore, add a newline character (\n)
-    #XXX: https://aws.amazon.com/premiumsupport/knowledge-center/select-count-query-athena-json-records/
-    data = '{}\n'.format(data)
-    record_list.append(data)
+    datetime_obj = datetime.datetime.combine(
+      date=datetime.date(CURRENT_YEAR, CURRENT_MONTH, CURRENT_DAY),
+      time=random_time,
+    )
 
-  if record_list:
-    yield record_list
+    return datetime_obj.strftime(fmt)
+
+
+def gen_records(options):
+  _CURRENT_YEAR = datetime.datetime.now().year
+
+  #XXX: For more information about synthetic data schema, see
+  # https://github.com/aws-samples/aws-glue-streaming-etl-blog/blob/master/config/generate_data.py
+  _ = Field(locale=locales.EN, providers=[CustomDatetimeProvider])
+
+  _schema = Schema(schema=lambda: {
+    "Invoice": _("pin", mask='######'),
+    "StockCode": f"{_('pin', mask='#####')}{_('choice', items=string.ascii_uppercase, length=1)}",
+    "Description": ', '.join(_("words")),
+    "Quantity": _("integer_number", start=1, end=10),
+    "InvoiceDate": _("custom_datetime.formated_datetime", fmt="%Y-%m-%d %H:%M:%S", lt_now=True),
+    "Price": _("float_number", start=0.1, end=100.0, precision=2),
+    "Customer_ID": f"{_('pin', mask='#####')}",
+    "Country": _("country")
+  })
+
+  ret = [[json.dumps(record)] for record in _schema.create(options.max_count)]
+  return ret
 
 
 def put_records_to_firehose(client, options, records):
@@ -89,6 +106,8 @@ def put_records_to_firehose(client, options, records):
             'Data': '{}\n'.format(data)
           }
         )
+        if options.verbose:
+          print('[FIREHOSE]', response, file=sys.stderr)
         break
       except Exception as ex:
         traceback.print_exc()
@@ -112,6 +131,8 @@ def put_records_to_kinesis(client, options, records):
   for _ in range(MAX_RETRY_COUNT):
     try:
       response = client.put_records(Records=payload_list, StreamName=options.stream_name)
+      if options.verbose:
+        print('[KINESIS]', response, file=sys.stderr)
       break
     except Exception as ex:
       traceback.print_exc()
@@ -125,34 +146,31 @@ def main():
 
   parser.add_argument('--region-name', action='store', default='us-east-1',
     help='aws region name (default: us-east-1)')
-  parser.add_argument('-I', '--input-file', required=True, help='The input file path ex) ./resources/online_retail.csv')
-  parser.add_argument('--out-format', default='json', choices=['csv', 'tsv', 'json'])
   parser.add_argument('--service-name', required=True, choices=['kinesis', 'firehose', 'console'])
   parser.add_argument('--stream-name', help='The name of the stream to put the data record into.')
   parser.add_argument('--max-count', default=10, type=int, help='The max number of records to put.')
-  parser.add_argument('--random-select', action='store_true')
   parser.add_argument('--dry-run', action='store_true')
+  parser.add_argument('--verbose', action='store_true', help='Show debug logs')
 
   options = parser.parse_args()
   COUNT_STEP = 10 if options.dry_run else 100
 
-  with open(options.input_file, newline='') as csvfile:
-    reader = csv.DictReader(csvfile)
-    client = boto3.client(options.service_name, region_name=options.region_name) if options.service_name != 'console' else None
-    counter = 0
-    for records in gen_records(options, reader):
-      if options.service_name == 'kinesis':
-        put_records_to_kinesis(client, options, records)
-      elif options.service_name == 'firehose':
-        put_records_to_firehose(client, options, records)
-      else:
-        print('\n'.join([e for e in records]))
-      counter += 1
-      if counter % COUNT_STEP == 0:
-        print('[INFO] {} steps are processed'.format(counter), file=sys.stderr)
-        if options.dry_run:
-          break
-      time.sleep(random.choices([0.01, 0.03, 0.05, 0.07, 0.1])[-1])
+  client = boto3.client(options.service_name, region_name=options.region_name) if options.service_name != 'console' else None
+  counter = 0
+  for records in gen_records(options):
+    if options.service_name == 'kinesis':
+      put_records_to_kinesis(client, options, records)
+    elif options.service_name == 'firehose':
+      put_records_to_firehose(client, options, records)
+    else:
+      print('\n'.join([e for e in records]))
+
+    counter += len(records)
+    if counter % COUNT_STEP == 0:
+      print('[INFO] {} records are processed'.format(counter), file=sys.stderr)
+
+    time.sleep(random.choices([0.01, 0.03, 0.05, 0.07, 0.1])[-1])
+  print('[INFO] Total {} records are processed'.format(counter), file=sys.stderr)
 
 
 if __name__ == '__main__':
