@@ -136,8 +136,14 @@ In the navigation pane, select the ec2 instance previously created, and then cli
     ./aws-analytics-immersion-day-main/set-up-hands-on-lab.sh
     ```
     (5) Make sure the files necessary for the lab are normally created after running the configuration script. For example, check if the source code and necessary files exist as shown below.
-
-    ![aws-ec2-setup-hands-on-lab](../assets/aws-ec2-setup-hands-on-lab.png)
+    ```shell script
+    [ec2-user@ip-172-31-2-252 ~]$ ls -1
+    athena_ctas.py
+    aws-analytics-immersion-day-main
+    gen_kinesis_data.py
+    main.zip
+    upsert_to_es.py
+    ```
 
 3. Perform `aws configure` to access other AWS resources. At this time, the IAM User data created earlier is used.
 Open the previously downloaded **.csv** file, check the `Access key ID` and `Secret access key`, and enter them.
@@ -149,7 +155,7 @@ Open the previously downloaded **.csv** file, check the `Access key ID` and `Sec
     Default output format [None]: 
     ```
 
-4. If the setting is complete, the information entered as follows will be masked.
+1. If the setting is complete, the information entered as follows will be masked.
     ```shell script
     $ aws configure
     AWS Access Key ID [****************EETA]:

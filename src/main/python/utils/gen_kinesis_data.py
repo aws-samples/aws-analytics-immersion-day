@@ -31,7 +31,7 @@ random.seed(47)
 class CustomDatetimeProvider(BaseProvider):
   class Meta:
     """Class for metadata."""
-    name: typing.Final[str] = "custom_datetime"
+    name = "custom_datetime"
 
   def __init__(self, seed=47) -> None:
     super().__init__(seed=seed)
