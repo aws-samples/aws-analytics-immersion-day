@@ -129,7 +129,7 @@ Amazon Athena를 이용해서 S3에 저장된 데이터를 기반으로 테이�
 4. Athena 쿼리 편집기에서 예제 쿼리가 있는 쿼리 창을 볼 수 있습니다. 쿼리 창의 아무 곳에나 쿼리를 입력하기 시작합니다.
 5. `mydatabase` 라는 데이터베이스를 생성하려면 다음 CREATE DATABASE 문을 입력한 다음, **\[Run Query\]** 를 선택합니다.
     ```buildoutcfg
-    CREATE DATABASE mydatabase
+    CREATE DATABASE IF NOT EXISTS mydatabase
     ```
 6. 카탈로그 디스플레이가 새로 고쳐지고 왼쪽 **\[Catalog\]** 대시보드의 **\[DATABASE\]** 목록에 `mydatabase`가 표시되는지 확인합니다.
  ![aws-athena-create-database](./assets/aws-athena-create-database.png)
@@ -138,7 +138,7 @@ Amazon Athena를 이용해서 S3에 저장된 데이터를 기반으로 테이�
 1. **\[DATABASE\]** 에 `mydatabase`가 선택되었는지 확인한 후 **\[New Query\]** 를 선택합니다.
 2. 쿼리 창에 다음 CREATE TABLE 문을 입력한 후 **\[Run Query\]** 를 선택합니다.
     ```buildoutcfg
-    CREATE EXTERNAL TABLE `mydatabase.retail_trans_json`(
+    CREATE EXTERNAL TABLE IF NOT EXISTS `mydatabase.retail_trans_json`(
       `invoice` string COMMENT 'Invoice number', 
       `stockcode` string COMMENT 'Product (item) code', 
       `description` string COMMENT 'Product (item) name', 
@@ -165,6 +165,10 @@ Amazon Athena를 이용해서 S3에 저장된 데이터를 기반으로 테이�
 3. 테이블을 생성한 이후 **\[New Query\]** 를 선택하고 다음을 실행해서, 파티션의 데이터를 로드합니다.
     ```buildoutcfg
     MSCK REPAIR TABLE mydatabase.retail_trans_json
+    ```
+    참고로, Athena 테이블이 파티션 목록은 다음 쿼리를 이용해서 확인할 수 있습니다.
+    ```buildoutcfg
+    SHOW PARTITIONS mydatabase.retail_trans_json
     ```
 
 ### 3단계: 데이터 쿼리

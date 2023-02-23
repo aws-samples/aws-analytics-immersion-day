@@ -125,7 +125,7 @@ Unless you are visiting for the first time, Athena Query Editor is oppened.
 4. You can see a query window with sample queries in the Athena Query Editor. You can start typing your SQL query anywhere in this window.
 5. Create a new database called `mydatabase`. Enter the following statement in the query window and click the **Run Query** button.
     ```buildoutcfg
-    CREATE DATABASE mydatabase
+    CREATE DATABASE IF NOT EXISTS mydatabase
     ```
 6. Confirm that the the dropdown list under **Database** section on the left panel has updated with a new database called  `mydatabase`. If you do not see it, make sure the **Data source** is selected to `AwsDataCatalog`.
  ![aws-athena-create-database](./assets/aws-athena-create-database.png)
@@ -134,7 +134,7 @@ Unless you are visiting for the first time, Athena Query Editor is oppened.
 1. Make sure that `mydatabase` is selected in **Database**, and click the `+` button above the query window to open a new query.
 2. Copy the following query into the query editor window, replace the `xxxxxxx` in the last line under `LOCATION` with the string of your S3 bucket, and click the **Run Query** button to execute the query to create a new table.
     ```buildoutcfg
-    CREATE EXTERNAL TABLE `mydatabase.retail_trans_json`(
+    CREATE EXTERNAL TABLE IF NOT EXISTS `mydatabase.retail_trans_json`(
       `invoice` string COMMENT 'Invoice number',
       `stockcode` string COMMENT 'Product (item) code',
       `description` string COMMENT 'Product (item) name',
@@ -163,6 +163,11 @@ Unless you are visiting for the first time, Athena Query Editor is oppened.
 3. After creating the table, click the `+` button to create a new query. Run the following query to load the partition data.
     ```buildoutcfg
     MSCK REPAIR TABLE mydatabase.retail_trans_json
+    ```
+
+    You can list all the partitions in the Athena table in unsorted order by running the following query.
+    ```buildoutcfg
+    SHOW PARTITIONS mydatabase.retail_trans_json
     ```
 
 ### Step 3: Query Data
