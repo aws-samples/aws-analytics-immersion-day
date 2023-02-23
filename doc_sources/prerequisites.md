@@ -146,22 +146,27 @@ Key Pair를 PC의 임의 위치에 저장한 후 **\[Launch Instances\]** 를 �
     upsert_to_es.py
     ```
 
-3. AWS의 다른 리소스 접근을 위해 AWS Configure를 진행합니다. 이때 앞서 생성한 IAM User 데이터를 활용합니다.
-이전에 다운로드 받은 .csv 파일을 열어 `Access key ID`와 `Secret access key`를 확인하고 입력합니다.
-    ```shell script
-    $ aws configure
-    AWS Access Key ID [None]: <Access key ID>
-    AWS Secret Access Key [None]: <Secret access key>
-    Default region name [None]: us-west-2
-    Default output format [None]: 
-    ```
-4. 설정이 완료 되었다면 다음과 같이 입력하신 정보가 마스킹 되어 보이게 됩니다.
-    ```shell script
-    $ aws configure
-    AWS Access Key ID [****************EETA]:
-    AWS Secret Access Key [****************CixY]:
-    Default region name [None]: us-west-2
-    Default output format [None]: 
-    ```
+3. 테스트 데이터를 생성하는 `gen_kinesis_data.py` 를 실행하기 위해서, AWS User credentials를 아래와 같은 방법으로 설정해야 합니다.
+
+   1. AWS의 다른 리소스 접근을 위해 AWS Configure를 진행합니다. 이때 앞서 생성한 IAM User 데이터를 활용합니다.
+   이전에 다운로드 받은 .csv 파일을 열어 `Access key ID`와 `Secret access key`를 확인하고 입력합니다.
+       ```shell script
+       $ aws configure
+       AWS Access Key ID [None]: <Access key ID>
+       AWS Secret Access Key [None]: <Secret access key>
+       Default region name [None]: us-west-2
+       Default output format [None]:
+       ```
+   2. 설정이 완료 되었다면 다음과 같이 입력하신 정보가 마스킹 되어 보이게 됩니다.
+       ```shell script
+       $ aws configure
+       AWS Access Key ID [****************EETA]:
+       AWS Secret Access Key [****************CixY]:
+       Default region name [None]: us-west-2
+       Default output format [None]:
+       ```
+
+    :information_source: AWS User credentials을 설정하기 않고, `gen_kinesis_data.py` 를 실행하고자 하는 경우, Amazon Kinesis Data Streams와 Kinesis Data Firehose에 Read/Write할 수 있는 권한을 갖는 IAM Role을 EC2 인스턴스에 부여하는 방법이 있습니다. 이번 실습을 위해서 `AmazonKinesisFullAccess` 과 `AmazonKinesisFirehoseFullAccess` IAM Policy를 포함하는 IAM Role을 생성해서 아래와 같이 EC2 인스턴스에 연결할 수 있습니다.
+    ![aws-ec2instance-modify-iam-role](../assets/aws-ec2instance-modify-iam-role.png)
 
 \[[Top](#top)\]

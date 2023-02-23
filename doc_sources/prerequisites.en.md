@@ -145,23 +145,27 @@ In the navigation pane, select the ec2 instance previously created, and then cli
     upsert_to_es.py
     ```
 
-3. Perform `aws configure` to access other AWS resources. At this time, the IAM User data created earlier is used.
-Open the previously downloaded **.csv** file, check the `Access key ID` and `Secret access key`, and enter them.
-    ```shell script
-    $ aws configure
-    AWS Access Key ID [None]: <Access key ID>
-    AWS Secret Access Key [None]: <Secret access key>
-    Default region name [None]: us-west-2
-    Default output format [None]: 
-    ```
+3. In order to run the Python synthentic data generator script (`gen_kinesis_data.py`), we need to set user credentials by following the instructions:
 
-1. If the setting is complete, the information entered as follows will be masked.
-    ```shell script
-    $ aws configure
-    AWS Access Key ID [****************EETA]:
-    AWS Secret Access Key [****************CixY]:
-    Default region name [None]: us-west-2
-    Default output format [None]: 
-    ```
+   1. Perform `aws configure` to access other AWS resources. At this time, the IAM User data created earlier is used.
+   Open the previously downloaded **.csv** file, check the `Access key ID` and `Secret access key`, and enter them.
+       ```shell script
+       $ aws configure
+       AWS Access Key ID [None]: <Access key ID>
+       AWS Secret Access Key [None]: <Secret access key>
+       Default region name [None]: us-west-2
+       Default output format [None]:
+       ```
+
+   2. If the setting is complete, the information entered as follows will be masked.
+       ```shell script
+       $ aws configure
+       AWS Access Key ID [****************EETA]:
+       AWS Secret Access Key [****************CixY]:
+       Default region name [None]: us-west-2
+       Default output format [None]:
+       ```
+
+    :information_source: Instead of using user credentials, you can attach an IAM role to the EC2 instance to run `gen_kinesis_data.py`. The IAM role should have IAM policies to read/write Amazon Kinesis Data Streams and Kinesis Data Firehose. For the purpose of this hands-on lab, you can create an IAM role attached with `AmazonKinesisFullAccess` and `AmazonKinesisFirehoseFullAccess`.
 
 \[[Top](#top)\]
