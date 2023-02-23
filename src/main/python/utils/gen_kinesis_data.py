@@ -86,7 +86,7 @@ def gen_records(options):
     "Country": _("country")
   })
 
-  ret = [[json.dumps(record)] for record in _schema.create(options.max_count)]
+  ret = [[f"{json.dumps(record)}\n"] for record in _schema.create(options.max_count)]
   return ret
 
 
