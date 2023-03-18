@@ -15,8 +15,8 @@
 * [\[Step-1d\] Athena를 이용해서 데이터 분석 하기](#athena)
 * [\[Step-1e\] QuickSight를 이용한 데이터 시각화](#amazon-quicksight-visualization)
 * [(Optional)\[Step-1f\] AWS Lambda Function을 이용해서 S3에 저장된 작은 파일들을 큰 파일로 합치기](#athena-ctas-lambda-function)
-* [\[Step-2a\] 실시간 데이터 분석을 위한 Amazon Elasticsearch Service 생성하기](#amazon-es)
-* [\[Step-2b\] AWS Lambda Function을 이용해서 실시간 데이터를 ElasticSearch에 수집하기](#amazon-lambda-function)
+* [\[Step-2a\] 실시간 데이터 분석을 위한 Amazon OpenSearch Service 생성하기](#amazon-es)
+* [\[Step-2b\] AWS Lambda Function을 이용해서 실시간 데이터를 OpenSearch에 수집하기](#amazon-lambda-function)
 * [\[Step-2c\] Kibana를 이용한 데이터 시각화](#amazon-es-kibana-visualization)
 * [Recap and Review](#recap-and-review)
 * [Resources](#resources)
@@ -49,7 +49,7 @@ AWS Management Console에서 Kinesis 서비스를 선택합니다.
 \[[Top](#top)\]
 
 ## <a name="kinesis-data-firehose"></a>데이터를 S3에 저장하기 위한 Kinesis Data Firehose 생성하기
-Kinesis Data Firehose를 이용해서 실시간으로 데이터를 S3, Redshift, ElasticSearch 등의 목적지에 수집할 수 있습니다.
+Kinesis Data Firehose를 이용해서 실시간으로 데이터를 S3, Redshift, OpenSearch 등의 목적지에 수집할 수 있습니다.
 AWS Management Console에서 Kinesis 서비스를 선택합니다.
 
 ![aws-analytics-system-build-steps](./assets/aws-analytics-system-build-steps.svg)
@@ -320,27 +320,27 @@ Rule type으로 `Schedule expression`을 선택하고, Schedule expression에 �
 
 \[[Top](#top)\]
 
-## <a name="amazon-es"></a>실시간 데이터 분석을 위한 Amazon Elasticsearch Service 생성하기
-실시간으로 데이터를 저장하고, 분석하기 위해서 Elasticsearch cluster를 생성합니다.
-Amazon ES 도메인은 Elasticsearch 클러스터와 동의어입니다. 도메인은 설정, 인스턴스 유형, 인스턴스 수, 스토리지 리소스를 지정한 설정입니다.
+## <a name="amazon-es"></a>실시간 데이터 분석을 위한 Amazon OpenSearch Service 생성하기
+실시간으로 데이터를 저장하고, 분석하기 위해서 OpenSearch cluster를 생성합니다.
+Amazon ES 도메인은 OpenSearch 클러스터와 동의어입니다. 도메인은 설정, 인스턴스 유형, 인스턴스 수, 스토리지 리소스를 지정한 설정입니다.
 
 ![aws-analytics-system-build-steps](./assets/aws-analytics-system-build-steps.svg)
 
-1. AWS Management Console에서 Analytics의 **Elasticsearch** 서비스를 선택합니다.
+1. AWS Management Console에서 Analytics의 **OpenSearch** 서비스를 선택합니다.
 2. (Step 1: Choose deployment type) **Create a new domain(새 도메인 생성)** 을 선택합니다.
-3. **Elasticsearch 도메인 생성** 페이지에서 **Deployment type(배포 유형)** 에 대해 **Production(프로덕션)** 을 선택합니다.
+3. **OpenSearch 도메인 생성** 페이지에서 **Deployment type(배포 유형)** 에 대해 **Production(프로덕션)** 을 선택합니다.
  ![amazon-es-deployment-type](./assets/amazon-es-deployment-type.png)
-4. **버전**에서 해당 도메인의 Elasticsearch 버전을 선택합니다. 지원되는 최신 버전을 선택하는 것이 좋습니다. 자세한 내용은 [지원되는 Elasticsearch 버전](https://docs.aws.amazon.com/elasticsearch-service/latest/developerguide/what-is-amazon-elasticsearch-service.html#aes-choosing-version) 단원을 참조하십시오.
+4. **버전**에서 해당 도메인의 OpenSearch 버전을 선택합니다. 지원되는 최신 버전을 선택하는 것이 좋습니다. 자세한 내용은 [지원되는 OpenSearch 버전](https://docs.aws.amazon.com/opensearch-service/latest/developerguide/what-is.html#choosing-version) 단원을 참조하십시오.
 5. **\[Next\]** 를 선택합니다.
 6. (Step 2: Configure domain) 도메인의 이름을 입력합니다. 이 실습에서는 이후에 다룰 `retail`를 예제 도메인 이름으로 사용합니다.
 7. **인스턴스 유형** 에서 Amazon ES 도메인의 인스턴스 유형을 선택합니다. 이 실습에서는 테스트 목적에 적합한 소용량의 경제적인 인스턴스 유형
-`t2.medium.elasticsearch`를 사용하는 것이 좋습니다.
+`t2.medium.opensearch`를 사용하는 것이 좋습니다.
 8. **인스턴스 수** 에 원하는 인스턴스 수를 입력합니다. 이 실습에서는 기본값 `3`을 사용합니다.
 9. 스토리지 유형에서 EBS를 선택합니다.
     + a. EBS volume type(EBS 볼륨 유형)에 일반용(SSD)을 선택합니다. 자세한 내용은 Amazon EBS 볼륨 유형을 참조하십시오.
     + b. EBS volume size(EBS 볼륨 크기)에 각 데이터 노드용 외부 스토리지의 크기를 GiB 단위로 입력합니다. 이 실습에서는 기본값 `10`을 사용합니다.
     ![amazon-es-config-domain](./assets/amazon-es-config-domain.png)
-10. 지금은 **Dedicated master nodes(전용 마스터 노드), Snapshot configuration(스냅샷 구성)** 및 **Optional Elasticsearch cluster settings(선택적 Elasticsearch 클러스터 설정)** 섹션을 무시할 수 있습니다.
+10. 지금은 **Dedicated master nodes(전용 마스터 노드), Snapshot configuration(스냅샷 구성)** 및 **Optional OpenSearch cluster settings(선택적 OpenSearch 클러스터 설정)** 섹션을 무시할 수 있습니다.
 11. **\[Next\]** 를 선택합니다.
 12. (Step 3: Configure access and security) **Network configuration(네트워크 구성)** 의 경우 **VPC access** 를 선택합니다.
 적절한 VPC와 subnet을 선택합니다. Security Groups으로 준비 단계에서 생성한 `es-cluster-sg`를 선택합니다.
@@ -399,7 +399,7 @@ Amazon ES 도메인은 Elasticsearch 클러스터와 동의어입니다. 도메�
 
 \[[Top](#top)\]
 
-## <a name="amazon-lambda-function"></a>AWS Lambda Function을 이용해서 실시간 데이터를 ElasticSearch에 수집하기
+## <a name="amazon-lambda-function"></a>AWS Lambda Function을 이용해서 실시간 데이터를 OpenSearch에 수집하기
 Lambda function을 이용해서 Amazon ES에 데이터를 실시간으로 색인할 수 있습니다.
 이번 실습에서는 AWS Lambda 콘솔을 사용하여 Lambda 함수를 생성합니다.
 
@@ -430,9 +430,9 @@ Lambda function을 이용해서 Amazon ES에 데이터를 실시간으로 색인
 11. Environment variables 에서 **\[Edit\]** 를 클릭합니다.
 12. **\[Add environment variables\]** 를 클릭해서 아래 4개의 Environment variables을 등록합니다.
     ```shell script
-    ES_HOST=<elasticsearch service domain>
-    ES_INDEX=<elasticsearch index name>
-    ES_TYPE=<elasticsearch type name>
+    ES_HOST=<opensearch service domain>
+    ES_INDEX=<opensearch index name>
+    ES_TYPE=<opensearch type name>
     REQUIRED_FIELDS=<primary key로 사용될 column 목록>
     REGION_NAME=<region-name>
     DATE_TYPE_FIELDS=<column 중, date 또는 timestamp 데이터 타입의 column>
@@ -455,7 +455,7 @@ IAM Role 수정을 위해서 `View the UpsertToES-role-XXXXXXXX role on the IAM 
 **AWSLambdaVPCAccessExecutionRole**, **AmazonKinesisReadOnlyAccess** 를 차례로 추가 합니다.
  ![aws-lambda-iam-role-policies](./assets/aws-lambda-iam-role-policies.png)
 16. VPC 항목에서 **\[Edit\]** 버튼을 클릭해서 Edit VPC 화면으로 이동 한다. VPC connection 에서 `Custom VPC` 를 선택합니다.
-Elasticsearch service의 도메인을 생성한 VPC와 subnets을 선택하고, Elasticsearch service 도메인에 접근이 허용된
+OpenSearch service의 도메인을 생성한 VPC와 subnets을 선택하고, OpenSearch service 도메인에 접근이 허용된
 security groups을 선택합니다.
 17. Basic settings에서 **\[Edit\]** 선택합니다. Memory와 Timeout을 알맞게 조정합니다. 이 실습에서는 Timout을 `5 min` 으로 설정합니다.
 18. 다시 Designer 탭으로 돌아가서 **\[Add trigger\]** 를 선택합니다.
@@ -467,21 +467,21 @@ security groups을 선택합니다.
 \[[Top](#top)\]
 
 ## <a name="amazon-es-kibana-visualization"></a>Kibana를 이용한 데이터 시각화
-Amazon Elasticsearch Service에서 수집된 데이터를 Kibana를 이용해서 시각화 작업을 합니다.
+Amazon OpenSearch Service에서 수집된 데이터를 Kibana를 이용해서 시각화 작업을 합니다.
 
 ![aws-analytics-system-build-steps](./assets/aws-analytics-system-build-steps.svg)
 
-1. Amazon Elasticsearch Cluster를 VPC의 private subnet에 생성했기 때문에, Amazon Elasticsearch endpoint와 Kibana endpoint를 public 인터넷으로 접근할 수 없다. 따라서 Elasticsearch 에 접속하기 위해서 ssh tunnel을 생성하고, local port forwarding을 해야 한다.<br>
+1. Amazon OpenSearch Cluster를 VPC의 private subnet에 생성했기 때문에, Amazon OpenSearch endpoint와 Kibana endpoint를 public 인터넷으로 접근할 수 없다. 따라서 OpenSearch 에 접속하기 위해서 ssh tunnel을 생성하고, local port forwarding을 해야 한다.<br>
 Mac 또는 Linux 사용자의 경우, 아래와 같이 개인 Local PC의 ssh config 파일에 ssh tunnel 설정을 추가 한다.
 Windows 사용자의 경우, [여기](#SSH-Tunnel-with-PuTTy-on-Windows)를 참고한다.
     ```shell script
-    # Elasticsearch Tunnel
+    # OpenSearch Tunnel
     Host estunnel
       HostName <EC2 Public IP of Bastion Host>
       User ec2-user
       IdentitiesOnly yes
       IdentityFile ~/.ssh/analytics-hol.pem
-      LocalForward 9200 <Elasticsearch Endpoint>:443
+      LocalForward 9200 <OpenSearch Endpoint>:443
     ```
   + **EC2 Public IP of Bastion Host** 은 **실습 환경 구성** 단계에서 생성한 EC2 인스턴스의 Public IP 를 사용한다.
   + 예)
@@ -491,7 +491,7 @@ Windows 사용자의 경우, [여기](#SSH-Tunnel-with-PuTTy-on-Windows)를 참�
     config
     id_rsa
     ~$ tail .ssh/config
-    # Elasticsearch Tunnel
+    # OpenSearch Tunnel
     Host estunnel
       HostName 214.132.71.219
       User ubuntu
@@ -502,7 +502,7 @@ Windows 사용자의 경우, [여기](#SSH-Tunnel-with-PuTTy-on-Windows)를 참�
     ```
 2. Terminal 에서 `ssh -N estunnel` 를 실행합니다.
 3. Web browser에서 `https://localhost:9200/_plugin/kibana/` 으로 접속합니다.
-4. (Home) Add Data to Kibana 에서 **\[Use Elasticsearch data / Connect to your Elasticsearch index\]** 클릭한다.
+4. (Home) Add Data to Kibana 에서 **\[Use OpenSearch data / Connect to your OpenSearch index\]** 클릭한다.
  ![kibana-01-add_data](./assets/kibana-01-add_data.png)
 5. (Management / Create index pattern) Create index pattern의 **Step 1 of 2: Define index pattern** 에서
 Index pattern에 `retail*` 을 입력합니다.
@@ -515,7 +515,7 @@ Time Filter field name에 `InvoiceDate` 를 선택합니다.
  ![kibana-02c-create-index-pattern-review](./assets/kibana-02c-create-index-pattern-review.png)
 9. (Management / Advanced Settings) 왼쪽 사이드바 메뉴에서 **\[Advanced Settings\]** 를 선택한 후, **Timezone for date formatting**을 `Etc/UTC` 로 설정합니다. 테스트용 데이터의 로그 생성 시간이 `UTC` 기준이기 때문에 Kibana의 Timezone 역시 `UTC`로 설정합니다.
  ![kibana-02d-management-advanced-setting](./assets/kibana-02d-management-advanced-setting.png)
-10. (Discover) Index pattern 생성을 완료 후, Discover를 선택해서 Elasticsearch 수집된 데이터를 확인합니다.
+10. (Discover) Index pattern 생성을 완료 후, Discover를 선택해서 OpenSearch 수집된 데이터를 확인합니다.
  ![kibana-03-discover](./assets/kibana-03-discover.png)
 11. (Discover) `InvoicdDate` 별 `Quantity`를 시각화 해 보겠습니다. 좌측의 Available fields에서 invoicdDate를
 선택하고, 하단에 있는 Visualize를 클릭합니다.
@@ -551,13 +551,13 @@ Lambda Architecture 구조의 Business Intelligent System을 구축해 보셨습
 ### AWS Developer Guide By Services
 + [Amazon Simple Storage Service (Amazon S3)](https://docs.aws.amazon.com/AmazonS3/latest/dev/Introduction.html)
 + [Amazon Athena](https://docs.aws.amazon.com/athena/latest/ug/what-is.html)
-+ [Amazon Elasticsearch Service](https://docs.aws.amazon.com/elasticsearch-service/latest/developerguide/what-is-amazon-elasticsearch-service.html)
++ [Amazon OpenSearch Service](https://docs.aws.amazon.com/opensearch-service/latest/developerguide/what-is.html)
 + [AWS Lambda](https://docs.aws.amazon.com/lambda/latest/dg/welcome.html)
 + [Amazon Kinesis Data Firehose](https://docs.aws.amazon.com/firehose/latest/dev/what-is-this-service.html)
 + [Amazon Kinesis Data Streams](https://docs.aws.amazon.com/streams/latest/dev/introduction.html)
 + [Amazon QuickSight](https://docs.aws.amazon.com/quicksight/latest/user/welcome.html)
 + [AWS Lambda Layers](https://docs.aws.amazon.com/lambda/latest/dg/configuration-layers.html#configuration-layers-path)
-    + <a name="aws-lambda-layer-python-packages"></a>AWS Lambda Layer에 등록할 Python 패키지 생성 예제: **elasticsearch** 
+    + <a name="aws-lambda-layer-python-packages"></a>AWS Lambda Layer에 등록할 Python 패키지 생성 예제: **opensearch** 
 
       :warning: **Python 패키지를 생성할 때는 AWS Lambda의 실행환경과 동일한 환경에서 생성해야하므로, Amazon Linux에서 Python 패키지를 생성하는 것을 추천 드립니다.**
       <pre>
