@@ -14,8 +14,8 @@ Through this lab, you will set up a `Data Collection -> Store -> Analysis/Proces
 * [\[Step-1d\] Analyze data using Athena](#athena)
 * [\[Step-1e\] Data visualization with QuickSight](#amazon-quicksight-visualization)
 * [(Optional)\[Step-1f\] Combine small files stored in S3 into large files using AWS Lambda Function](#athena-ctas-lambda-function)
-* [\[Step-2a\] Create Amazon Elasticsearch Service for Real-Time Data Analysis](#amazon-es)
-* [\[Step-2b\] Ingest real-time data into ElasticSearch using AWS Lambda Functions](#amazon-lambda-function)
+* [\[Step-2a\] Create Amazon OpenSearch Service for Real-Time Data Analysis](#amazon-es)
+* [\[Step-2b\] Ingest real-time data into OpenSearch using AWS Lambda Functions](#amazon-lambda-function)
 * [\[Step-2c\] Data visualization with Kibana](#amazon-es-kibana-visualization)
 * [Recap and Review](#recap-and-review)
 * [Resources](#resources)
@@ -50,7 +50,7 @@ Select **Kinesis** from the list of services on the AWS Management Console.
 \[[Top](#top)\]
 
 ## <a name="kinesis-data-firehose"></a>Create Kinesis Data Firehose to store data in S3
-Kinesis Data Firehose will allow collecting data in real-time and batch it to load into a storage location such as Amazon S3, Amazon Redshift or ElasticSearch.<br/>
+Kinesis Data Firehose will allow collecting data in real-time and batch it to load into a storage location such as Amazon S3, Amazon Redshift or OpenSearch Service.<br/>
 
 ![aws-analytics-system-build-steps](./assets/aws-analytics-system-build-steps.svg)
 
@@ -311,26 +311,26 @@ Select `Schedule expression` as the rule type, and enter `cron(5 * * * *)` for r
 
 \[[Top](#top)\]
 
-## <a name="amazon-es"></a>Create Amazon Elasticsearch Service for Real-Time Data Analysis
+## <a name="amazon-es"></a>Create Amazon OpenSearch Service for Real-Time Data Analysis
 
-An Elasticsearch cluster is created to store and analyze data in real time. Amazon ES domains are synonymous with Elasticsearch clusters. A domain is a setting that specifies a setting, instance type, number of instances, and storage resources.
+An OpenSearch cluster is created to store and analyze data in real time. Amazon ES domains are synonymous with OpenSearch clusters. A domain is a setting that specifies a setting, instance type, number of instances, and storage resources.
 
 ![aws-analytics-system-build-steps](./assets/aws-analytics-system-build-steps.svg)
 
-1. In the AWS Management Console, select the **Elasticsearch** service in the Analytics category. 
+1. In the AWS Management Console, select the **OpenSearch** service in the Analytics category. 
 2. (Step 1: Choose deployment type) Select **Create a new domain**.
-3. On the **Create Elasticsearch domain** page, select **Production** for **Deployment type**.
+3. On the **Create OpenSearch domain** page, select **Production** for **Deployment type**.
  ![amazon-es-deployment-type](./assets/amazon-es-deployment-type.png)
-4. For **Version**, choose the Elasticsearch version for your domain. We recommend that you choose the latest supported version. For more information, see [Supported Elasticsearch Versions](https://docs.aws.amazon.com/elasticsearch-service/latest/developerguide/what-is-amazon-elasticsearch-service.html#aes-choosing-version). 
+4. For **Version**, choose the OpenSearch version for your domain. We recommend that you choose the latest supported version. For more information, see [Supported OpenSearch Versions](https://docs.aws.amazon.com/opensearch-service/latest/developerguide/what-is.html#choosing-version). 
 5. Click **Next** button.
 6. (Step 2: Configure domain) Enter the name of the domain. In this lab, `retail` will be used as the example domain name.
-7. For **Instance type**, choose the instance type of your Amazon ES domain. In this lab, it is recommended to use a small, economical instance type (`t3.medium.elasticsearch`) suitable for testing purposes. 
+7. For **Instance type**, choose the instance type of your Amazon ES domain. In this lab, it is recommended to use a small, economical instance type (`t3.medium.opensearch`) suitable for testing purposes. 
 8. Enter the desired number of instances in **Number of nodes**. In this lab, we will use the default value of `3`.
 9. Select EBS for **Data nodes storage type**.
     + a. Select General Purpose (SSD) for the **EBS volume type**. For more information, see Amazon EBS Volume Types.
     + b. In EBS volume size, enter the **EBS storage size per node** for each data node in GiB. In this lab, we will use the default value of `10`. 
     ![amazon-es-config-domain](./assets/amazon-es-config-domain.png)
-10. For now, you can ignore the **Dedicated master nodes, Snapshot configuration** and **Optional Elasticsearch cluster settings** sections.
+10. For now, you can ignore the **Dedicated master nodes, Snapshot configuration** and **Optional OpenSearch cluster settings** sections.
 11. Click **Next**.
 12. (Step 3: Configure access and security) For **Network configuration**, select **VPC access**. Choose the appropriate VPC and subnet. Select the `es-cluster-sg` created in the preparation step as Security Groups.
 13. For now, disable **Amazon Cognito Authentication** and **Fine–grained access control**.
@@ -387,9 +387,9 @@ An Elasticsearch cluster is created to store and analyze data in real time. Amaz
 
 \[[Top](#top)\]
 
-## <a name="amazon-lambda-function"></a>Ingest real-time data into ElasticSearch using AWS Lambda Functions
+## <a name="amazon-lambda-function"></a>Ingest real-time data into OpenSearch using AWS Lambda Functions
 
-You can index data into Amazon Elasticsearch Service in real time using a Lambda function.
+You can index data into Amazon OpenSearch Service in real time using a Lambda function.
 In this lab, you will create a Lambda function using the AWS Lambda console.
 
 ![aws-analytics-system-build-steps](./assets/aws-analytics-system-build-steps.svg)
@@ -418,9 +418,9 @@ For how to create `es-lib.zip`, refer to [Example of creating a Python package t
 11. In Environment variables, click **Edit**.
 12. Click **Add environment variables** to register the following 4 environment variables.
     ```shell script
-    ES_HOST=<elasticsearch service domain>
-    ES_INDEX=<elasticsearch index name>
-    ES_TYPE=<elasticsearch type name>
+    ES_HOST=<opensearch service domain>
+    ES_INDEX=<opensearch index name>
+    ES_TYPE=<opensearch type name>
     REQUIRED_FIELDS=<columns to be used as primary key>
     REGION_NAME=<region-name>
     DATE_TYPE_FIELDS=<columns of which data type is either date or timestamp>
@@ -441,7 +441,7 @@ Click `View the UpsertToES-role-XXXXXXXX role on the IAM console.` to edit the I
 15. After clicking the **Attach policies** button in the **Permissions** tab of IAM Role, add **AWSLambdaVPCAccessExecutionRole** and **AmazonKinesisReadOnlyAccess** in order.
  ![aws-lambda-iam-role-policies](./assets/aws-lambda-iam-role-policies.png)
 16. Click the **Edit** button in the VPC category to go to the Edit VPC screen. Select `Custom VPC` for VPC connection.
-Choose the VPC and subnets where you created the domain for the Elasticsearch service, and choose the security groups that are allowed access to the Elasticsearch service domain.
+Choose the VPC and subnets where you created the domain for the OpenSearch service, and choose the security groups that are allowed access to the OpenSearch service domain.
 17. Select **Edit** in Basic settings. Adjust Memory and Timeout appropriately. In this lab, we set Timout to `5 min`.
 18. Go back to the Designer tab and select **Add trigger**.
 19. Select **Kinesis** from `Select a trigger` in the **Trigger configuration**.
@@ -453,21 +453,21 @@ Choose the VPC and subnets where you created the domain for the Elasticsearch se
 
 ## <a name="amazon-es-kibana-visualization"></a>Data visualization with Kibana
 
-Visualize data collected from Amazon Elasticsearch Service using Kibana.
+Visualize data collected from Amazon OpenSearch Service using Kibana.
 
 ![aws-analytics-system-build-steps](./assets/aws-analytics-system-build-steps.svg)
 
-1. The Amazon Elasticsearch cluster is provisioned in a VPC. Hence, the Amazon Elasticsearch endpoint and the Kibana endpoint are not available over the internet. In order to access the endpoints, we have to create a ssh tunnel and do local port forwarding. <br/>
+1. The Amazon OpenSearch cluster is provisioned in a VPC. Hence, the Amazon OpenSearch endpoint and the Kibana endpoint are not available over the internet. In order to access the endpoints, we have to create a ssh tunnel and do local port forwarding. <br/>
 For Winodws, refer to [here](#SSH-Tunnel-with-PuTTy-on-Windows).</br>
-For Mac/Linux, to access the Elasticsearch Cluster, add the ssh tunnel configuration to the ssh config file of the personal local PC as follows.<br/>
+For Mac/Linux, to access the OpenSearch Cluster, add the ssh tunnel configuration to the ssh config file of the personal local PC as follows.<br/>
     ```shell script
-    # Elasticsearch Tunnel
+    # OpenSearch Tunnel
     Host estunnel
       HostName <EC2 Public IP of Bastion Host>
       User ec2-user
       IdentitiesOnly yes
       IdentityFile ~/.ssh/analytics-hol.pem
-      LocalForward 9200 <Elasticsearch Endpoint>:443
+      LocalForward 9200 <OpenSearch Endpoint>:443
     ```
   + **EC2 Public IP of Bastion Host** uses the public IP of the EC2 instance created in the **Lab setup** step.
   + ex)
@@ -477,7 +477,7 @@ For Mac/Linux, to access the Elasticsearch Cluster, add the ssh tunnel configura
     config
     id_rsa
     ~$ tail .ssh/config
-    # Elasticsearch Tunnel
+    # OpenSearch Tunnel
     Host estunnel
       HostName 214.132.71.219
       User ubuntu
@@ -488,7 +488,7 @@ For Mac/Linux, to access the Elasticsearch Cluster, add the ssh tunnel configura
     ```
 2. Run `ssh -N estunnel` in Terminal.
 3. Connect to `https://localhost:9200/_plugin/kibana/` in a web browser.
-4. (Home) Click **Use Elasticsearch data / Connect to your Elasticsearch index** in **Add Data to Kibana**.
+4. (Home) Click **Use OpenSearch data / Connect to your OpenSearch index** in **Add Data to Kibana**.
  ![kibana-01-add_data](./assets/kibana-01-add_data.png)
 5. (Management / Create index pattern) In **Step 1 of 2: Define index pattern** of **Create index pattern**, enter `retail*` in Index pattern.
  ![kibana-02a-create-index-pattern](./assets/kibana-02a-create-index-pattern.png)
@@ -499,7 +499,7 @@ For Mac/Linux, to access the Elasticsearch Cluster, add the ssh tunnel configura
  ![kibana-02c-create-index-pattern-review](./assets/kibana-02c-create-index-pattern-review.png)
 9. (Management / Advanced Settings) After selecting **Advanced Settings** from the left sidebar menu, set **Timezone for date formatting** to `Etc/UTC`. Since the log creation time of the test data is based on `UTC`, **Kibana**'s **Timezone** is also set to `UTC`.
  ![kibana-02d-management-advanced-setting](./assets/kibana-02d-management-advanced-setting.png)
-10. (Discover) After completing the creation of **Index pattern**, select **Discover** to check the data collected in Elasticsearch.
+10. (Discover) After completing the creation of **Index pattern**, select **Discover** to check the data collected in OpenSearch.
  ![kibana-03-discover](./assets/kibana-03-discover.png)
 11. (Discover) Let's visualize the `Quantity` by `InvoicdDate`. Select **invoicdDate** from **Available fields** on the left, and click **Visualize** at the bottom.
  ![kibana-04-discover-visualize](./assets/kibana-04-discover-visualize.png)
@@ -536,7 +536,7 @@ Through this lab, we have built a Business Intelligent System with Lambda Archit
 ### AWS Developer Guide By Services
 + [Amazon Simple Storage Service (Amazon S3)](https://docs.aws.amazon.com/AmazonS3/latest/dev/Introduction.html)
 + [Amazon Athena](https://docs.aws.amazon.com/athena/latest/ug/what-is.html)
-+ [Amazon Elasticsearch Service](https://docs.aws.amazon.com/elasticsearch-service/latest/developerguide/what-is-amazon-elasticsearch-service.html)
++ [Amazon OpenSearch Service](https://docs.aws.amazon.com/opensearch-service/latest/developerguide/what-is.html)
 + [AWS Lambda](https://docs.aws.amazon.com/lambda/latest/dg/welcome.html)
 + [Amazon Kinesis Data Firehose](https://docs.aws.amazon.com/firehose/latest/dev/what-is-this-service.html)
 + [Amazon Kinesis Data Streams](https://docs.aws.amazon.com/streams/latest/dev/introduction.html)
