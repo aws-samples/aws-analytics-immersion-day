@@ -313,30 +313,22 @@ Select `Schedule expression` as the rule type, and enter `cron(5 * * * *)` for r
 
 ## <a name="amazon-es"></a>Create Amazon OpenSearch Service for Real-Time Data Analysis
 
-An OpenSearch cluster is created to store and analyze data in real time. Amazon ES domains are synonymous with OpenSearch clusters. A domain is a setting that specifies a setting, instance type, number of instances, and storage resources.
+An OpenSearch cluster is created to store and analyze data in real time. An OpenSearch Service domain is synonymous with an OpenSearch cluster. Domains are clusters with the settings, instance types, instance counts, and storage resources that you specify.
 
 ![aws-analytics-system-build-steps](./assets/aws-analytics-system-build-steps.svg)
 
-1. In the AWS Management Console, select the **OpenSearch** service in the Analytics category. 
-2. (Step 1: Choose deployment type) Select **Create a new domain**.
-3. On the **Create OpenSearch domain** page, select **Production** for **Deployment type**.
- ![amazon-es-deployment-type](./assets/amazon-es-deployment-type.png)
-4. For **Version**, choose the OpenSearch version for your domain. We recommend that you choose the latest supported version. For more information, see [Supported OpenSearch Versions](https://docs.aws.amazon.com/opensearch-service/latest/developerguide/what-is.html#choosing-version). 
-5. Click **Next** button.
-6. (Step 2: Configure domain) Enter the name of the domain. In this lab, `retail` will be used as the example domain name.
-7. For **Instance type**, choose the instance type of your Amazon ES domain. In this lab, it is recommended to use a small, economical instance type (`t3.medium.opensearch`) suitable for testing purposes. 
-8. Enter the desired number of instances in **Number of nodes**. In this lab, we will use the default value of `3`.
-9. Select EBS for **Data nodes storage type**.
-    + a. Select General Purpose (SSD) for the **EBS volume type**. For more information, see Amazon EBS Volume Types.
-    + b. In EBS volume size, enter the **EBS storage size per node** for each data node in GiB. In this lab, we will use the default value of `10`. 
-    ![amazon-es-config-domain](./assets/amazon-es-config-domain.png)
-10. For now, you can ignore the **Dedicated master nodes, Snapshot configuration** and **Optional OpenSearch cluster settings** sections.
-11. Click **Next**.
-12. (Step 3: Configure access and security) For **Network configuration**, select **VPC access**. Choose the appropriate VPC and subnet. Select the `es-cluster-sg` created in the preparation step as Security Groups.
-13. For now, disable **Amazon Cognito Authentication** and **Fine–grained access control**.
- ![amazon-es-access-control](./assets/amazon-es-access-control.png)
-14. For **Access policy**, select **JSON defined access policy** from **Domain access policy**, and then create and enter a **JSON defined access policy** using the following template in **Add or edit the access policy**.
-    + JSON defined access policy Template - Enter the domain name entered in **(Step 2: Configure domain)** in `<DOMAIN-NAME>`.
+1. In the [AWS Management Console](https://aws.amazon.com), choose **Amazon OpenSearch Service** under **Analytics**. 
+2. Choose **Create a new domain**.
+3. Provide a name for the domain. The examples in this tutorial use the name `retail`.
+4. Ignore the **Custom endpoint** setting.
+5. For the deployment type, choose **Production**.
+6. For **Version**, choose the latest version. For more information about the versions, see [Supported OpenSearch Versions](https://docs.aws.amazon.com/opensearch-service/latest/developerguide/what-is.html#choosing-version). 
+7. Under **Data nodes**, change the instance type to `t3.small.search` and keep the default value of three nodes.
+8. Under **Network**, choose **VPC access (recommended)**. Choose the appropriate VPC and subnet. Select the `es-cluster-sg` created in the preparation step as Security Groups.
+9. In the fine-grained access control settings, choose **Create master user**. Provide a username and password.
+10. For now, ignore the **SAML authentication** and **Amazon Cognito authentication** sections.
+11. For **Access policy**, choose **Configure domain level access policy**. Select **JSON** from **Configure domain level access policy**, and then enter an **Access policy** using the following template.
+    + JSON defined access policy Template - Enter the domain name into `<DOMAIN-NAME>`.
         ```json
         {
           "Version": "2012-10-17",
@@ -352,7 +344,7 @@ An OpenSearch cluster is created to store and analyze data in real time. Amazon 
                 "es:Get*",
                 "es:ESHttp*"
               ],
-              "Resource": "arn:aws:es:<region-id>:<account-id>:domain/<DOMAIN-NAME>/*"
+              "Resource": "arn:aws:es:<region-name>:<account-id>:domain/<DOMAIN-NAME>/*"
             }
           ]
         }
@@ -373,17 +365,15 @@ An OpenSearch cluster is created to store and analyze data in real time. Amazon 
                 "es:Get*",
                 "es:ESHttp*"
               ],
-              "Resource": "arn:aws:es:us-west-2:123456789012:domain/retail/*"
+              "Resource": "arn:aws:es:us-east-1:123456789012:domain/retail/*"
             }
           ]
         }
         ```
     + Once **JSON defined access policy** has been created, you will see the following screen.
     ![amazon-es-json-access-policy](./assets/amazon-es-json-access-policy.png)
-15. **Encryption** only allows **Require HTTPS for all traffic to the domain**, and other items are disabled.
- ![amazon-es-encryption-config](./assets/amazon-es-encryption-config.png)
-16. Keep all default values ​​of **Encryption**. Select **Next**.
-17. On the **Review** page, review your domain configuration and then choose **Confirm**.
+12. Ignore the rest of the settings and choose **Create**.
+    New domains typically take 15–30 minutes to initialize, but can take longer depending on the configuration.
 
 \[[Top](#top)\]
 
