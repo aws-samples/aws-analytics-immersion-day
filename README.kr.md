@@ -30,7 +30,7 @@
 
 ## <a name="preliminaries"></a>사전 준비 작업
 실습을 시작 하기 전에 필요한 IAM User, EC2를 생성하고 및 구성합니다.
- - [실습 환경 준비 하기](./doc_sources/prerequisites.md)
+ - [실습 환경 준비 하기](./doc_sources/prerequisites.kr.md)
  
 \[[Top](#Top)\]
 
