@@ -72,6 +72,7 @@ upsert_to_es_stack = UpsertToESStack(app, 'DataAnalyticsUpsertToESStack',
   kds_stack.kinesis_stream,
   search_stack.sg_search_client,
   search_stack.search_domain_endpoint,
+  search_stack.search_domain_arn,
   env=AWS_ENV
 )
 upsert_to_es_stack.add_dependency(search_stack)

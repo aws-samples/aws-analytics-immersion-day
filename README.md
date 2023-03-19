@@ -93,7 +93,7 @@ In this step, we will generate sample data and verify it is being processed and 
 2. Run `gen_kinesis_data.py` script on the EC2 instance by entering the following command -
     ```shell script
     python3 gen_kinesis_data.py \
-      --region-name us-west-2 \
+      --region-name us-east-1 \
       --service-name kinesis \
       --stream-name retail-trans
     ```
@@ -377,7 +377,7 @@ For how to create `es-lib.zip`, refer to [Example of creating a Python package t
     ES_INDEX=retail
     ES_TYPE=trans
     REQUIRED_FIELDS=Invoice,StockCode,Customer_ID
-    REGION_NAME=us-west-2
+    REGION_NAME=us-east-1
     DATE_TYPE_FIELDS=InvoiceDate
     ```
 13. Click **Save**.
@@ -395,7 +395,7 @@ Choose the VPC and subnets where you created the domain for the OpenSearch servi
 21. Click **Add**.
  ![aws-lambda-kinesis](./assets/aws-lambda-kinesis.png)
 
-### Enable the Lambda function to ingest records into Amazon OpenSearch
+### <a name="create-firehose-role"></a>Enable the Lambda function to ingest records into Amazon OpenSearch
 
  The lambda function uses the delivery role to sign HTTP (Signature Version 4) requests before sending the data to the Amazon OpenSearch Service endpoint.
 
@@ -404,17 +404,65 @@ Choose the VPC and subnets where you created the domain for the OpenSearch servi
 
  Complete the following steps:
 
-1. Navigate to the OpenSearch Dashboards (you can find the URL on the Amazon OpenSearch Service console).
-2. Enter the master user and password that you set up when you created the Amazon OpenSearch Service endpoint.
-3. In the Welcome screen, click the toolbar icon to the left side of **Home** button. Choose **Security**.
+1. The Amazon OpenSearch cluster is provisioned in a VPC. Hence, the Amazon OpenSearch endpoint and the Kibana endpoint are not available over the internet. In order to access the endpoints, we have to create a ssh tunnel and do local port forwarding. <br/>
+   * Option 1) Using SSH Tunneling
+
+      1. Setup ssh configuration
+
+         For Winodws, refer to [here](#SSH-Tunnel-with-PuTTy-on-Windows).</br>
+         For Mac/Linux, to access the OpenSearch Cluster, add the ssh tunnel configuration to the ssh config file of the personal local PC as follows.<br/>
+            ```shell script
+            # OpenSearch Tunnel
+            Host estunnel
+              HostName <EC2 Public IP of Bastion Host>
+              User ec2-user
+              IdentitiesOnly yes
+              IdentityFile ~/.ssh/analytics-hol.pem
+              LocalForward 9200 <OpenSearch Endpoint>:443
+            ```
+           + **EC2 Public IP of Bastion Host** uses the public IP of the EC2 instance created in the **Lab setup** step.
+           + ex)
+            ```shell script
+            ~$ ls -1 .ssh/
+            analytics-hol.pem
+            config
+            id_rsa
+            ~$ tail .ssh/config
+            # OpenSearch Tunnel
+            Host estunnel
+              HostName 214.132.71.219
+              User ubuntu
+              IdentitiesOnly yes
+              IdentityFile ~/.ssh/analytics-hol.pem
+              LocalForward 9200 vpc-retail-qvwlxanar255vswqna37p2l2cy.us-east-1.es.amazonaws.com:443
+            ~$
+            ```
+      2. Run `ssh -N estunnel` in Terminal.
+
+   * Option 2) Connect using the EC2 Instance Connect CLI
+ 
+      1. Install EC2 Instance Connect CLI
+          ```
+          sudo pip install ec2instanceconnectcli
+          ```
+      2. Run
+          <pre>mssh ec2-user@{<i>bastion-ec2-instance-id</i>} -N -L 9200:{<i>opensearch-endpoint</i>}:443</pre>
+        + ex)
+          ```
+          $ mssh ec2-user@i-0203f0d6f37ccbe5b -N -L 9200:vpc-retail-qvwlxanar255vswqna37p2l2cy.us-east-1.es.amazonaws.com:443
+          ```
+
+2. Connect to `https://localhost:9200/_dashboards/app/login?` in a web browser.
+3. Enter the master user and password that you set up when you created the Amazon OpenSearch Service endpoint.
+4. In the Welcome screen, click the toolbar icon to the left side of **Home** button. Choose **Security**.
    ![ops-dashboards-sidebar-menu-security](./assets/ops-dashboards-sidebar-menu-security.png)
-4. Under **Security**, choose **Roles**.
-5. Choose **Create role**.
-6. Name your role; for example, `firehose_role`.
-7. For cluster permissions, add `cluster_composite_ops` and `cluster_monitor`.
-8. Under **Index permissions**, choose **Index Patterns** and enter <i>index-name*</i>; for example, `retail-trans*`.
-9. Under **Permissions**, add three action groups: `crud`, `create_index`, and `manage`.
-10. Choose **Create**.
+5. Under **Security**, choose **Roles**.
+6. Choose **Create role**.
+7. Name your role; for example, `firehose_role`.
+8. For cluster permissions, add `cluster_composite_ops` and `cluster_monitor`.
+9.  Under **Index permissions**, choose **Index Patterns** and enter <i>index-name*</i>; for example, `retail-trans*`.
+10. Under **Permissions**, add three action groups: `crud`, `create_index`, and `manage`.
+11. Choose **Create**.
     ![ops-create-firehose_role](./assets/ops-create-firehose_role.png)
 
 In the next step, you map the IAM role that the lambda function uses to the role you just created.
@@ -442,58 +490,76 @@ Visualize data collected from Amazon OpenSearch Service using Kibana.
 ![aws-analytics-system-build-steps](./assets/aws-analytics-system-build-steps.svg)
 
 1. The Amazon OpenSearch cluster is provisioned in a VPC. Hence, the Amazon OpenSearch endpoint and the Kibana endpoint are not available over the internet. In order to access the endpoints, we have to create a ssh tunnel and do local port forwarding. <br/>
-For Winodws, refer to [here](#SSH-Tunnel-with-PuTTy-on-Windows).</br>
-For Mac/Linux, to access the OpenSearch Cluster, add the ssh tunnel configuration to the ssh config file of the personal local PC as follows.<br/>
-    ```shell script
-    # OpenSearch Tunnel
-    Host estunnel
-      HostName <EC2 Public IP of Bastion Host>
-      User ec2-user
-      IdentitiesOnly yes
-      IdentityFile ~/.ssh/analytics-hol.pem
-      LocalForward 9200 <OpenSearch Endpoint>:443
-    ```
-  + **EC2 Public IP of Bastion Host** uses the public IP of the EC2 instance created in the **Lab setup** step.
-  + ex)
-    ```shell script
-    ~$ ls -1 .ssh/
-    analytics-hol.pem
-    config
-    id_rsa
-    ~$ tail .ssh/config
-    # OpenSearch Tunnel
-    Host estunnel
-      HostName 214.132.71.219
-      User ubuntu
-      IdentitiesOnly yes
-      IdentityFile ~/.ssh/analytics-hol.pem
-      LocalForward 9200 vpc-retail-qvwlxanar255vswqna37p2l2cy.us-west-2.es.amazonaws.com:443
-    ~$
-    ```
-2. Run `ssh -N estunnel` in Terminal.
-3. Connect to `https://localhost:9200/_dashboards/app/login?` in a web browser.
-4. In the Welcome screen, click the toolbar icon to the left side of **Home** button. Choose **Stack Managerment**.
+   * Option 1) Using SSH Tunneling
+
+      1. Setup ssh configuration
+
+         For Winodws, refer to [here](#SSH-Tunnel-with-PuTTy-on-Windows).</br>
+         For Mac/Linux, to access the OpenSearch Cluster, add the ssh tunnel configuration to the ssh config file of the personal local PC as follows.<br/>
+            ```shell script
+            # OpenSearch Tunnel
+            Host estunnel
+              HostName <EC2 Public IP of Bastion Host>
+              User ec2-user
+              IdentitiesOnly yes
+              IdentityFile ~/.ssh/analytics-hol.pem
+              LocalForward 9200 <OpenSearch Endpoint>:443
+            ```
+           + **EC2 Public IP of Bastion Host** uses the public IP of the EC2 instance created in the **Lab setup** step.
+           + ex)
+            ```shell script
+            ~$ ls -1 .ssh/
+            analytics-hol.pem
+            config
+            id_rsa
+            ~$ tail .ssh/config
+            # OpenSearch Tunnel
+            Host estunnel
+              HostName 214.132.71.219
+              User ubuntu
+              IdentitiesOnly yes
+              IdentityFile ~/.ssh/analytics-hol.pem
+              LocalForward 9200 vpc-retail-qvwlxanar255vswqna37p2l2cy.us-east-1.es.amazonaws.com:443
+            ~$
+            ```
+      2. Run `ssh -N estunnel` in Terminal.
+
+   * Option 2) Connect using the EC2 Instance Connect CLI
+
+      1. Install EC2 Instance Connect CLI
+          ```
+          sudo pip install ec2instanceconnectcli
+          ```
+      2. Run
+          <pre>mssh ec2-user@{<i>bastion-ec2-instance-id</i>} -N -L 9200:{<i>opensearch-endpoint</i>}:443</pre>
+        + ex)
+          ```
+          $ mssh ec2-user@i-0203f0d6f37ccbe5b -N -L 9200:vpc-retail-qvwlxanar255vswqna37p2l2cy.us-east-1.es.amazonaws.com:443
+          ```
+
+2. Connect to `https://localhost:9200/_dashboards/app/login?` in a web browser.
+3. In the Welcome screen, click the toolbar icon to the left side of **Home** button. Choose **Stack Managerment**.
    ![ops-dashboards-sidebar-menu](./assets/ops-dashboards-sidebar-menu.png)
-5. (Management / Create index pattern) In **Step 1 of 2: Define index pattern** of **Create index pattern**, enter `retail*` in Index pattern.
+4. (Management / Create index pattern) In **Step 1 of 2: Define index pattern** of **Create index pattern**, enter `retail*` in Index pattern.
    ![ops-create-index-pattern](./assets/ops-create-index-pattern.png)
-6. (Management / Create index pattern) Choose **> Next step**.
-7. (Management / Create index pattern) Select `InvoiceDate` for the **Time Filter field name** in **Step 2 of 2: Configure settings** of the Create index pattern.
+5. (Management / Create index pattern) Choose **> Next step**.
+6. (Management / Create index pattern) Select `InvoiceDate` for the **Time Filter field name** in **Step 2 of 2: Configure settings** of the Create index pattern.
    ![ops-create-index-pattern-configure-setting](./assets/ops-create-index-pattern-configure-setting.png)
-8. (Management / Create index pattern) Click **Create index pattern**.
-9.  (Management / Advanced Settings) After selecting **Advanced Settings** from the left sidebar menu, set **Timezone for date formatting** to `Etc/UTC`. Since the log creation time of the test data is based on `UTC`, **Kibana**'s **Timezone** is also set to `UTC`.
- ![kibana-02d-management-advanced-setting](./assets/ops-management-advanced-setting.png)
-1.  (Discover) After completing the creation of **Index pattern**, select **Discover** to check the data collected in OpenSearch.
- ![kibana-03-discover](./assets/kibana-03-discover.png)
-1.  (Discover) Let's visualize the `Quantity` by `InvoicdDate`. Select **invoicdDate** from **Available fields** on the left, and click **Visualize** at the bottom.
- ![kibana-04-discover-visualize](./assets/kibana-04-discover-visualize.png)
-1.  (Visualize) After selecting **Y-Axis** in **Metrics** on the Data tab, apply `Sum` for **Aggregation**, and `Quantity` for **Field** as shown below.
- ![kibana-05-discover-change-metrics](./assets/kibana-05-discover-change-metrics.png)
-1.  (Visualize) Click **Save** in the upper left corner, write down the name of the graph you saved, and then click **Confirm Save**.
- ![kibna-08-visualize-save](./assets/kibana-08-visualize-save.png)
-1.  (Dashboards) Click **Dashboard** icon on the left and click the **Create new dashboard** button.
- ![kibana-09-dashboards](./assets/kibana-09-dashboards.png)
-1.  (Dashboards) You can see the following Dashboards.
- ![kibana-13-complete](./assets/kibana-13-complete.png)
+7. (Management / Create index pattern) Click **Create index pattern**.
+8. (Management / Advanced Settings) After selecting **Advanced Settings** from the left sidebar menu, set **Timezone for date formatting** to `Etc/UTC`. Since the log creation time of the test data is based on `UTC`, **Kibana**'s **Timezone** is also set to `UTC`.
+    ![kibana-02d-management-advanced-setting](./assets/ops-management-advanced-setting.png)
+9.  (Discover) After completing the creation of **Index pattern**, select **Discover** to check the data collected in OpenSearch.
+    ![kibana-03-discover](./assets/kibana-03-discover.png)
+10. (Discover) Let's visualize the `Quantity` by `InvoicdDate`. Select **invoicdDate** from **Available fields** on the left, and click **Visualize** at the bottom
+    ![kibana-04-discover-visualize](./assets/kibana-04-discover-visualize.png)
+11. (Visualize) After selecting **Y-Axis** in **Metrics** on the Data tab, apply `Sum` for **Aggregation**, and `Quantity` for **Field** as shown below.
+    ![kibana-05-discover-change-metrics](./assets/kibana-05-discover-change-metrics.png)
+12. (Visualize) Click **Save** in the upper left corner, write down the name of the graph you saved, and then click **Confirm Save**.
+    ![kibna-08-visualize-save](./assets/kibana-08-visualize-save.png)
+13. (Dashboards) Click **Dashboard** icon on the left and click the **Create new dashboard** button.
+    ![kibana-09-dashboards](./assets/kibana-09-dashboards.png)
+14. (Dashboards) You can see the following Dashboards.
+    ![kibana-13-complete](./assets/kibana-13-complete.png)
 
 \[[Top](#top)\]
 
@@ -613,6 +679,12 @@ Through this lab, we have built a Business Intelligent System with Lambda Archit
   $ ssh -i /path/to/my_rsa_key ec2-user@$BASTION_DNS_NAME
   ```
 
++ [Connect using the EC2 Instance Connect CLI](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-instance-connect-methods.html#ec2-instance-connect-connecting-ec2-cli)
+   <pre>
+   $ sudo pip install ec2instanceconnectcli
+   $ mssh ec2-user@i-001234a4bf70dec41EXAMPLE # ec2-instance-id
+   </pre>
+
 \[[Top](#top)\]
 
 ## Appendix
@@ -684,7 +756,7 @@ After setting, deploy using the `cdk deploy` command.
     $ source .env/bin/activate
     (.env) $ pip install -r requirements.txt
     (.env) $ export CDK_DEFAULT_ACCOUNT=$(aws sts get-caller-identity --query Account --output text)
-    (.env) $ export CDK_DEFAULT_REGION=us-west-2
+    (.env) $ export CDK_DEFAULT_REGION=us-east-1
     (.env) $ cdk bootstrap aws://${CDK_DEFAULT_ACCOUNT}/${CDK_DEFAULT_REGION}
     (.env) $ export S3_BUCKET_LAMBDA_LAYER_LIB=lambda-layer-resources
     (.env) $ cdk --profile cdk_user deploy --require-approval never --all
@@ -694,15 +766,18 @@ After setting, deploy using the `cdk deploy` command.
 
     ```shell script
     (.env) $ export CDK_DEFAULT_ACCOUNT=$(aws sts get-caller-identity --query Account --output text)
-    (.env) $ export CDK_DEFAULT_REGION=us-west-2
+    (.env) $ export CDK_DEFAULT_REGION=us-east-1
     (.env) $ export S3_BUCKET_LAMBDA_LAYER_LIB=lambda-layer-resources
     (.env) $ cdk --profile cdk_user deploy --require-approval never --all
     ```
+    
+3. [Enable the Lambda function to ingest records into Amazon OpenSearch.](#create-firehose-role)
 
-4. To delete the deployed application, execute the `cdk destroy` command as follows.
-    ```shell script
+### Clean Up
+
+To delete the deployed application, execute the `cdk destroy` command as follows.
+
     (.env) $ cdk --profile cdk_user destroy --force --all
-    ```
 
 \[[Top](#top)\]
 

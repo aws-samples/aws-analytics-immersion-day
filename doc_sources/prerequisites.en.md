@@ -76,7 +76,7 @@ Create and configure a security group for Elasticsearch Service.
 Create an EC2 instance that will generate the data needed for the lab in real time.
 
 1. Connect to EC2 service in AWS Management Console.
-2. In the upper right, select your region (e.g., **US West (Oregon)**).
+2. In the upper right, select your region (e.g., **N. Virginia**).
 3. Select **Instances** from the left **INSTANCES** menu and click **\[Launch Instance\]** to start creating a new instance.
    ![aws-ec2-launch-instance](../assets/aws-ec2-launch-instance.png)
 4. Step 1: On the **Choose an Amazon Machine Image (AMI)** screen, choose **Amazon Linux 2 AMI (HVM), SSD Volume Type**.
@@ -153,7 +153,7 @@ In the navigation pane, select the ec2 instance previously created, and then cli
        $ aws configure
        AWS Access Key ID [None]: <Access key ID>
        AWS Secret Access Key [None]: <Secret access key>
-       Default region name [None]: us-west-2
+       Default region name [None]: us-east-1
        Default output format [None]:
        ```
 
@@ -162,7 +162,7 @@ In the navigation pane, select the ec2 instance previously created, and then cli
        $ aws configure
        AWS Access Key ID [****************EETA]:
        AWS Secret Access Key [****************CixY]:
-       Default region name [None]: us-west-2
+       Default region name [None]: us-east-1
        Default output format [None]:
        ```
 

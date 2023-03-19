@@ -110,6 +110,7 @@ class OpenSearchStack(Stack):
 
     self.sg_search_client = sg_use_opensearch
     self.search_domain_endpoint = ops_domain.domain_endpoint
+    self.search_domain_arn = ops_domain.domain_arn
 
     cdk.CfnOutput(self, 'OPSDomainEndpoint', value=self.search_domain_endpoint, export_name='OPSDomainEndpoint')
     cdk.CfnOutput(self, 'OPSDashboardsURL', value=f"{self.search_domain_endpoint}/_dashboards/", export_name='OPSDashboardsURL')
