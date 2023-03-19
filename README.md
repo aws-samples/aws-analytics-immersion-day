@@ -327,51 +327,7 @@ An OpenSearch cluster is created to store and analyze data in real time. An Open
 8. Under **Network**, choose **VPC access (recommended)**. Choose the appropriate VPC and subnet. Select the `es-cluster-sg` created in the preparation step as Security Groups.
 9. In the fine-grained access control settings, choose **Create master user**. Provide a username and password.
 10. For now, ignore the **SAML authentication** and **Amazon Cognito authentication** sections.
-11. For **Access policy**, choose **Configure domain level access policy**. Select **JSON** from **Configure domain level access policy**, and then enter an **Access policy** using the following template.
-    + JSON defined access policy Template - Enter the domain name into `<DOMAIN-NAME>`.
-        ```json
-        {
-          "Version": "2012-10-17",
-          "Statement": [
-            {
-              "Effect": "Allow",
-              "Principal": {
-                "AWS": "*"
-              },
-              "Action": [
-                "es:Describe*",
-                "es:List*",
-                "es:Get*",
-                "es:ESHttp*"
-              ],
-              "Resource": "arn:aws:es:<region-name>:<account-id>:domain/<DOMAIN-NAME>/*"
-            }
-          ]
-        }
-        ```
-    + ex) In this lab, we used `retail` as the domain name, so we create a JSON defined access policy as shown below.
-        ```json
-        {
-          "Version": "2012-10-17",
-          "Statement": [
-            {
-              "Effect": "Allow",
-              "Principal": {
-                "AWS": "*"
-              },
-              "Action": [
-                "es:Describe*",
-                "es:List*",
-                "es:Get*",
-                "es:ESHttp*"
-              ],
-              "Resource": "arn:aws:es:us-east-1:123456789012:domain/retail/*"
-            }
-          ]
-        }
-        ```
-    + Once **JSON defined access policy** has been created, you will see the following screen.
-    ![amazon-es-json-access-policy](./assets/amazon-es-json-access-policy.png)
+11. For **Access policy**, choose **Only use fine-grained access control**.
 12. Ignore the rest of the settings and choose **Create**.
     New domains typically take 15–30 minutes to initialize, but can take longer depending on the configuration.
 
@@ -439,6 +395,44 @@ Choose the VPC and subnets where you created the domain for the OpenSearch servi
 21. Click **Add**.
  ![aws-lambda-kinesis](./assets/aws-lambda-kinesis.png)
 
+### Enable the Lambda function to ingest records into Amazon OpenSearch
+
+ The lambda function uses the delivery role to sign HTTP (Signature Version 4) requests before sending the data to the Amazon OpenSearch Service endpoint.
+
+ You manage Amazon OpenSearch Service fine-grained access control permissions using roles, users, and mappings.
+ This section describes how to create roles and set permissions for the lambda function.
+
+ Complete the following steps:
+
+1. Navigate to the OpenSearch Dashboards (you can find the URL on the Amazon OpenSearch Service console).
+2. Enter the master user and password that you set up when you created the Amazon OpenSearch Service endpoint.
+3. In the Welcome screen, click the toolbar icon to the left side of **Home** button. Choose **Security**.
+   ![ops-dashboards-sidebar-menu-security](./assets/ops-dashboards-sidebar-menu-security.png)
+4. Under **Security**, choose **Roles**.
+5. Choose **Create role**.
+6. Name your role; for example, `firehose_role`.
+7. For cluster permissions, add `cluster_composite_ops` and `cluster_monitor`.
+8. Under **Index permissions**, choose **Index Patterns** and enter <i>index-name*</i>; for example, `retail-trans*`.
+9. Under **Permissions**, add three action groups: `crud`, `create_index`, and `manage`.
+10. Choose **Create**.
+    ![ops-create-firehose_role](./assets/ops-create-firehose_role.png)
+
+In the next step, you map the IAM role that the lambda function uses to the role you just created.
+
+1.  Choose the **Mapped users** tab.
+    ![ops-role-mappings](./assets/ops-role-mappings.png)
+2.  Choose **Manage mapping** and under **Backend roles**,
+3.  For **Backend Roles**, enter the IAM ARN of the role the lambda function uses:
+    `arn:aws:iam::123456789012:role/UpsertToESServiceRole709-xxxxxxxxxxxx`.
+    ![ops-entries-for-firehose_role](./assets/ops-entries-for-firehose_role.png)
+4.  Choose **Map**.
+
+**Note**: After OpenSearch Role mapping for the lambda function, you would not be supposed to meet a data delivery failure with the lambda function like this:
+
+<pre>
+[ERROR] AuthorizationException: AuthorizationException(403, 'security_exception', 'no permissions for [cluster:monitor/main] and User [name=arn:aws:iam::123456789012:role/UpsertToESServiceRole709-G1RQVRG80CQY, backend_roles=[arn:aws:iam::123456789012:role/UpsertToESServiceRole709-G1RQVRG80CQY], requestedTenant=null]')
+</pre>
+
 \[[Top](#top)\]
 
 ## <a name="amazon-es-kibana-visualization"></a>Data visualization with Kibana
@@ -477,33 +471,28 @@ For Mac/Linux, to access the OpenSearch Cluster, add the ssh tunnel configuratio
     ~$
     ```
 2. Run `ssh -N estunnel` in Terminal.
-3. Connect to `https://localhost:9200/_plugin/kibana/` in a web browser.
-4. (Home) Click **Use OpenSearch data / Connect to your OpenSearch index** in **Add Data to Kibana**.
- ![kibana-01-add_data](./assets/kibana-01-add_data.png)
+3. Connect to `https://localhost:9200/_dashboards/app/login?` in a web browser.
+4. In the Welcome screen, click the toolbar icon to the left side of **Home** button. Choose **Stack Managerment**.
+   ![ops-dashboards-sidebar-menu](./assets/ops-dashboards-sidebar-menu.png)
 5. (Management / Create index pattern) In **Step 1 of 2: Define index pattern** of **Create index pattern**, enter `retail*` in Index pattern.
- ![kibana-02a-create-index-pattern](./assets/kibana-02a-create-index-pattern.png)
+   ![ops-create-index-pattern](./assets/ops-create-index-pattern.png)
 6. (Management / Create index pattern) Choose **> Next step**.
-7. (Management / Create index pattern) Select `InvoiceDate` for the Time Filter field name in **Step 2 of 2: Configure settings** of the Create index pattern.
- ![kibana-02b-create-index-pattern-configure-settings](./assets/kibana-02b-create-index-pattern-configure-settings.png)
+7. (Management / Create index pattern) Select `InvoiceDate` for the **Time Filter field name** in **Step 2 of 2: Configure settings** of the Create index pattern.
+   ![ops-create-index-pattern-configure-setting](./assets/ops-create-index-pattern-configure-setting.png)
 8. (Management / Create index pattern) Click **Create index pattern**.
- ![kibana-02c-create-index-pattern-review](./assets/kibana-02c-create-index-pattern-review.png)
-9. (Management / Advanced Settings) After selecting **Advanced Settings** from the left sidebar menu, set **Timezone for date formatting** to `Etc/UTC`. Since the log creation time of the test data is based on `UTC`, **Kibana**'s **Timezone** is also set to `UTC`.
- ![kibana-02d-management-advanced-setting](./assets/kibana-02d-management-advanced-setting.png)
-10. (Discover) After completing the creation of **Index pattern**, select **Discover** to check the data collected in OpenSearch.
+9.  (Management / Advanced Settings) After selecting **Advanced Settings** from the left sidebar menu, set **Timezone for date formatting** to `Etc/UTC`. Since the log creation time of the test data is based on `UTC`, **Kibana**'s **Timezone** is also set to `UTC`.
+ ![kibana-02d-management-advanced-setting](./assets/ops-management-advanced-setting.png)
+1.  (Discover) After completing the creation of **Index pattern**, select **Discover** to check the data collected in OpenSearch.
  ![kibana-03-discover](./assets/kibana-03-discover.png)
-11. (Discover) Let's visualize the `Quantity` by `InvoicdDate`. Select **invoicdDate** from **Available fields** on the left, and click **Visualize** at the bottom.
+1.  (Discover) Let's visualize the `Quantity` by `InvoicdDate`. Select **invoicdDate** from **Available fields** on the left, and click **Visualize** at the bottom.
  ![kibana-04-discover-visualize](./assets/kibana-04-discover-visualize.png)
-12. (Visualize) After selecting **Y-Axis** in **Metrics** on the Data tab, apply `Sum` for **Aggregation**, and `Quantity` for **Field** as shown below.
+1.  (Visualize) After selecting **Y-Axis** in **Metrics** on the Data tab, apply `Sum` for **Aggregation**, and `Quantity` for **Field** as shown below.
  ![kibana-05-discover-change-metrics](./assets/kibana-05-discover-change-metrics.png)
-13. (Visualize) Click **Save** in the upper left corner, write down the name of the graph you saved, and then click **Confirm Save**.
+1.  (Visualize) Click **Save** in the upper left corner, write down the name of the graph you saved, and then click **Confirm Save**.
  ![kibna-08-visualize-save](./assets/kibana-08-visualize-save.png)
-14. (Dashboards) Click **Dashboard** icon on the left and click the **Create new dashboard** button.
+1.  (Dashboards) Click **Dashboard** icon on the left and click the **Create new dashboard** button.
  ![kibana-09-dashboards](./assets/kibana-09-dashboards.png)
-15. (Dashboards) Click **Add** on the upper left, and select the graph created in the previous step in **Add Panels**.
- ![kibana-10-import-visualization](./assets/kibana-10-import-visualization.png)
-16. (Dashboards) Click **Save** at the top left, enter **Title** in the **Save dashboard**, and click **Confirm Save**.
-![kibana-12-discover-save-dashboard](./assets/kibana-12-discover-save-dashboard.png)
-17. (Dashboards) You can see the following Dashboards.
+1.  (Dashboards) You can see the following Dashboards.
  ![kibana-13-complete](./assets/kibana-13-complete.png)
 
 \[[Top](#top)\]

@@ -76,24 +76,24 @@ Create and configure a security group for Elasticsearch Service.
 Create an EC2 instance that will generate the data needed for the lab in real time.
 
 1. Connect to EC2 service in AWS Management Console.
-2. In the upper right, select **US West (Oregon)** for Region.
+2. In the upper right, select your region (e.g., **US West (Oregon)**).
 3. Select **Instances** from the left **INSTANCES** menu and click **\[Launch Instance\]** to start creating a new instance.
- ![aws-ec2-launch-instance](../assets/aws-ec2-launch-instance.png)
+   ![aws-ec2-launch-instance](../assets/aws-ec2-launch-instance.png)
 4. Step 1: On the **Choose an Amazon Machine Image (AMI)** screen, choose **Amazon Linux 2 AMI (HVM), SSD Volume Type**.
- ![aws-ec2-choose-ami](../assets/aws-ec2-choose-ami.png)
-5. Step 2: On the **Choose an Instance Type** screen, select t2.micro as the instance type. Click **\[Next: Configure Instance Details\]**.
- ![aws-ec2-choose-instance-type](../assets/aws-ec2-choose-instance-type.png)
+   ![aws-ec2-choose-ami](../assets/aws-ec2-choose-ami.png)
+5. Step 2: On the **Choose an Instance Type** screen, select `t2.micro` as the instance type. Click **\[Next: Configure Instance Details\]**.
+   ![aws-ec2-choose-instance-type](../assets/aws-ec2-choose-instance-type.png)
 6. Step 3: On the **Configure Instance Details** screen, select **Enable** for **Auto-assign Public IP**, and click **\[Next: Add Storage\]**.
- ![aws-ec2-configure-instance-details](../assets/aws-ec2-configure-instance-details.png)
+   ![aws-ec2-configure-instance-details](../assets/aws-ec2-configure-instance-details.png)
 7. Step 4: On the **Add Storage** screen, leave the defaults and click **\[Next: Add Tags\]**.
 8. Step 5: On the **Add Tags** screen, click **\[Next: Configure Security Group\]**.
 9. Step 6: On the **Configure Security Group** screen, select **Select an existing security group** from **Assign a security group**, and then select `bastion` and `use-es-cluster-sg` from the **Security Group** and click **\[Review and Launch\]**.
- ![aws-ec2-configure-security-group](../assets/aws-ec2-configure-security-group.png)
+    ![aws-ec2-configure-security-group](../assets/aws-ec2-configure-security-group.png)
 10. Step 7: click **\[Launch\]** on the **Review Instance Launch** screen. 
 11. Create a key pair to access EC2 Instance.
 Select Create a new key pair, enter `analytics-hol` as the Key pair name, and click **Download Key Pair**.
 Save the Key Pair to any location on your PC and click **\[Launch Instances\]**. (EC2 Instance startup may take several minutes.)
- ![aws-ec2-select-keypair](../assets/aws-ec2-select-keypair.png)
+    ![aws-ec2-select-keypair](../assets/aws-ec2-select-keypair.png)
 12. For MacOS users, Change the File Permission of the downloaded Key Pair file to 400.
     ```shell script
     $ chmod 400 ./analytics-hol.pem 
