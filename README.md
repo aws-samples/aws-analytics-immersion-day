@@ -538,27 +538,28 @@ Visualize data collected from Amazon OpenSearch Service using Kibana.
           ```
 
 2. Connect to `https://localhost:9200/_dashboards/app/login?` in a web browser.
-3. In the Welcome screen, click the toolbar icon to the left side of **Home** button. Choose **Stack Managerment**.
+3. Enter the master user and password that you set up when you created the Amazon OpenSearch Service endpoint.
+4. In the Welcome screen, click the toolbar icon to the left side of **Home** button. Choose **Stack Managerment**.
    ![ops-dashboards-sidebar-menu](./assets/ops-dashboards-sidebar-menu.png)
-4. (Management / Create index pattern) In **Step 1 of 2: Define index pattern** of **Create index pattern**, enter `retail*` in Index pattern.
+5. (Management / Create index pattern) In **Step 1 of 2: Define index pattern** of **Create index pattern**, enter `retail*` in Index pattern.
    ![ops-create-index-pattern](./assets/ops-create-index-pattern.png)
-5. (Management / Create index pattern) Choose **> Next step**.
-6. (Management / Create index pattern) Select `InvoiceDate` for the **Time Filter field name** in **Step 2 of 2: Configure settings** of the Create index pattern.
+6. (Management / Create index pattern) Choose **> Next step**.
+7. (Management / Create index pattern) Select `InvoiceDate` for the **Time Filter field name** in **Step 2 of 2: Configure settings** of the Create index pattern.
    ![ops-create-index-pattern-configure-setting](./assets/ops-create-index-pattern-configure-setting.png)
-7. (Management / Create index pattern) Click **Create index pattern**.
-8. (Management / Advanced Settings) After selecting **Advanced Settings** from the left sidebar menu, set **Timezone for date formatting** to `Etc/UTC`. Since the log creation time of the test data is based on `UTC`, **Kibana**'s **Timezone** is also set to `UTC`.
+8. (Management / Create index pattern) Click **Create index pattern**.
+9. (Management / Advanced Settings) After selecting **Advanced Settings** from the left sidebar menu, set **Timezone for date formatting** to `Etc/UTC`. Since the log creation time of the test data is based on `UTC`, **Kibana**'s **Timezone** is also set to `UTC`.
     ![kibana-02d-management-advanced-setting](./assets/ops-management-advanced-setting.png)
-9.  (Discover) After completing the creation of **Index pattern**, select **Discover** to check the data collected in OpenSearch.
+10. (Discover) After completing the creation of **Index pattern**, select **Discover** to check the data collected in OpenSearch.
     ![kibana-03-discover](./assets/kibana-03-discover.png)
-10. (Discover) Let's visualize the `Quantity` by `InvoicdDate`. Select **invoicdDate** from **Available fields** on the left, and click **Visualize** at the bottom
+11. (Discover) Let's visualize the `Quantity` by `InvoicdDate`. Select **invoicdDate** from **Available fields** on the left, and click **Visualize** at the bottom
     ![kibana-04-discover-visualize](./assets/kibana-04-discover-visualize.png)
-11. (Visualize) After selecting **Y-Axis** in **Metrics** on the Data tab, apply `Sum` for **Aggregation**, and `Quantity` for **Field** as shown below.
+12. (Visualize) After selecting **Y-Axis** in **Metrics** on the Data tab, apply `Sum` for **Aggregation**, and `Quantity` for **Field** as shown below.
     ![kibana-05-discover-change-metrics](./assets/kibana-05-discover-change-metrics.png)
-12. (Visualize) Click **Save** in the upper left corner, write down the name of the graph you saved, and then click **Confirm Save**.
+13. (Visualize) Click **Save** in the upper left corner, write down the name of the graph you saved, and then click **Confirm Save**.
     ![kibna-08-visualize-save](./assets/kibana-08-visualize-save.png)
-13. (Dashboards) Click **Dashboard** icon on the left and click the **Create new dashboard** button.
+14. (Dashboards) Click **Dashboard** icon on the left and click the **Create new dashboard** button.
     ![kibana-09-dashboards](./assets/kibana-09-dashboards.png)
-14. (Dashboards) You can see the following Dashboards.
+15. (Dashboards) You can see the following Dashboards.
     ![kibana-13-complete](./assets/kibana-13-complete.png)
 
 \[[Top](#top)\]
