@@ -386,7 +386,7 @@ Click `View the UpsertToES-role-XXXXXXXX role on the IAM console.` to edit the I
  ![aws-lambda-execution-iam-role](./assets/aws-lambda-execution-iam-role.png)
 15. After clicking the **Attach policies** button in the **Permissions** tab of IAM Role, add **AWSLambdaVPCAccessExecutionRole** and **AmazonKinesisReadOnlyAccess** in order.
  ![aws-lambda-iam-role-policies](./assets/aws-lambda-iam-role-policies.png)
-16. Add the following policy statements into customer inline policy. The following IAM Policy enables the lambda function to ingest data into the `retail` index in the opensearch service.
+16. Add the following policy statements into customer inline policy (e.g., `UpsertToESDefaultPolicyXXXXX`). The following IAM Policy enables the lambda function to ingest data into the `retail` index in the opensearch service.
     <pre>
     {
         "Action": [
