@@ -46,7 +46,7 @@ class UpsertToESStack(Stack):
       runtime=_lambda.Runtime.PYTHON_3_7,
       function_name="UpsertToES",
       handler="upsert_to_es.lambda_handler",
-      description="Upsert records into elasticsearch",
+      description="Upsert records into Amazon OpenSearch Service",
       code=_lambda.Code.from_asset("./src/main/python/UpsertToES"),
       environment={
         'ES_HOST': ops_domain_endpoint,

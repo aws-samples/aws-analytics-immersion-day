@@ -386,13 +386,45 @@ Click `View the UpsertToES-role-XXXXXXXX role on the IAM console.` to edit the I
  ![aws-lambda-execution-iam-role](./assets/aws-lambda-execution-iam-role.png)
 15. After clicking the **Attach policies** button in the **Permissions** tab of IAM Role, add **AWSLambdaVPCAccessExecutionRole** and **AmazonKinesisReadOnlyAccess** in order.
  ![aws-lambda-iam-role-policies](./assets/aws-lambda-iam-role-policies.png)
-16. Click the **Edit** button in the VPC category to go to the Edit VPC screen. Select `Custom VPC` for VPC connection.
+16. Add the following policy statements into customer inline policy. The following IAM Policy enables the lambda function to ingest data into the `retail` index in the opensearch service.
+    <pre>
+    {
+        "Action": [
+            "es:DescribeElasticsearchDomain",
+            "es:DescribeElasticsearchDomainConfig",
+            "es:DescribeElasticsearchDomains",
+            "es:ESHttpPost",
+            "es:ESHttpPut"
+        ],
+        "Resource": [
+            "arn:aws:es:<i>region</i>:<i>account-id</i>:domain/retail",
+            "arn:aws:es:<i>region</i>:<i>account-id</i>:domain/retail/*"
+        ],
+        "Effect": "Allow"
+    },
+    {
+        "Action": "es:ESHttpGet",
+        "Resource": [
+            "arn:aws:es:<i>region</i>:<i>account-id</i>:domain/retail",
+            "arn:aws:es:<i>region</i>:<i>account-id</i>:domain/retail/_all/_settings",
+            "arn:aws:es:<i>region</i>:<i>account-id</i>:domain/retail/_cluster/stats",
+            "arn:aws:es:<i>region</i>:<i>account-id</i>:domain/retail/_nodes",
+            "arn:aws:es:<i>region</i>:<i>account-id</i>:domain/retail/_nodes/*/stats",
+            "arn:aws:es:<i>region</i>:<i>account-id</i>:domain/retail/_nodes/stats",
+            "arn:aws:es:<i>region</i>:<i>account-id</i>:domain/retail/_stats",
+            "arn:aws:es:<i>region</i>:<i>account-id</i>:domain/retail/retail*/_mapping/trans",
+            "arn:aws:es:<i>region</i>:<i>account-id</i>:domain/retail/retail*/_stats"
+        ],
+        "Effect": "Allow"
+    }
+    </pre>
+17. Click the **Edit** button in the VPC category to go to the Edit VPC screen. Select `Custom VPC` for VPC connection.
 Choose the VPC and subnets where you created the domain for the OpenSearch service, and choose the security groups that are allowed access to the OpenSearch service domain.
-17. Select **Edit** in Basic settings. Adjust Memory and Timeout appropriately. In this lab, we set Timout to `5 min`.
-18. Go back to the Designer tab and select **Add trigger**.
-19. Select **Kinesis** from `Select a trigger` in the **Trigger configuration**.
-20. Select the Kinesis Data Stream (`retail-trans`) created earlier in **Kinesis stream**.
-21. Click **Add**.
+18. Select **Edit** in Basic settings. Adjust Memory and Timeout appropriately. In this lab, we set Timout to `5 min`.
+19. Go back to the Designer tab and select **Add trigger**.
+20. Select **Kinesis** from `Select a trigger` in the **Trigger configuration**.
+21. Select the Kinesis Data Stream (`retail-trans`) created earlier in **Kinesis stream**.
+22. Click **Add**.
  ![aws-lambda-kinesis](./assets/aws-lambda-kinesis.png)
 
 ### <a name="create-firehose-role"></a>Enable the Lambda function to ingest records into Amazon OpenSearch
@@ -467,13 +499,13 @@ Choose the VPC and subnets where you created the domain for the OpenSearch servi
 
 In the next step, you map the IAM role that the lambda function uses to the role you just created.
 
-1.  Choose the **Mapped users** tab.
+12. Choose the **Mapped users** tab.
     ![ops-role-mappings](./assets/ops-role-mappings.png)
-2.  Choose **Manage mapping** and under **Backend roles**,
-3.  For **Backend Roles**, enter the IAM ARN of the role the lambda function uses:
+13. Choose **Manage mapping** and under **Backend roles**,
+14. For **Backend Roles**, enter the IAM ARN of the role the lambda function uses:
     `arn:aws:iam::123456789012:role/UpsertToESServiceRole709-xxxxxxxxxxxx`.
     ![ops-entries-for-firehose_role](./assets/ops-entries-for-firehose_role.png)
-4.  Choose **Map**.
+15. Choose **Map**.
 
 **Note**: After OpenSearch Role mapping for the lambda function, you would not be supposed to meet a data delivery failure with the lambda function like this:
 
