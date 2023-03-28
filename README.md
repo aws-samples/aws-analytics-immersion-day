@@ -20,7 +20,7 @@ Through this lab, you will set up a `Data Collection -> Store -> Analysis/Proces
 * [Recap and Review](#recap-and-review)
 * [Resources](#resources)
 * [Reference](#reference)
-* [Appendix](#appendix)
+* [Deployment by AWS CDK](#appendix)
 
 ## <a name="solutions-architecture-overview"></a>Solutions Architecture Overview
 ![aws-analytics-system-architecture](aws-analytics-system-arch.svg)
@@ -720,7 +720,7 @@ Through this lab, we have built a Business Intelligent System with Lambda Archit
 
 \[[Top](#top)\]
 
-## Appendix
+## Deployment by AWS CDK
 
 :warning: **At the end of this lab, you should delete the resources you used to avoid incurring additional charges for the AWS account you used.**
 
