@@ -1,0 +1,411 @@
+Resources:
+  VpcStack0F17A1B7:
+    Type: AWS::EC2::VPC
+    Properties:
+      CidrBlock: 10.0.0.0/16
+      EnableDnsHostnames: true
+      EnableDnsSupport: true
+      InstanceTenancy: default
+      Tags:
+        - Key: Name
+          Value: vpc/VpcStack
+    Metadata:
+      aws:cdk:path: vpc/VpcStack/Resource
+  VpcStackPublicSubnet1Subnet3ACDE2AA:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId:
+        Ref: VpcStack0F17A1B7
+      AvailabilityZone: us-west-2a
+      CidrBlock: 10.0.0.0/24
+      MapPublicIpOnLaunch: true
+      Tags:
+        - Key: aws-cdk:subnet-name
+          Value: Public
+        - Key: aws-cdk:subnet-type
+          Value: Public
+        - Key: Name
+          Value: vpc/VpcStack/PublicSubnet1
+    Metadata:
+      aws:cdk:path: vpc/VpcStack/PublicSubnet1/Subnet
+  VpcStackPublicSubnet1RouteTable4FE62862:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId:
+        Ref: VpcStack0F17A1B7
+      Tags:
+        - Key: Name
+          Value: vpc/VpcStack/PublicSubnet1
+    Metadata:
+      aws:cdk:path: vpc/VpcStack/PublicSubnet1/RouteTable
+  VpcStackPublicSubnet1RouteTableAssociation3B798904:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      RouteTableId:
+        Ref: VpcStackPublicSubnet1RouteTable4FE62862
+      SubnetId:
+        Ref: VpcStackPublicSubnet1Subnet3ACDE2AA
+    Metadata:
+      aws:cdk:path: vpc/VpcStack/PublicSubnet1/RouteTableAssociation
+  VpcStackPublicSubnet1DefaultRoute4E14C6B4:
+    Type: AWS::EC2::Route
+    Properties:
+      RouteTableId:
+        Ref: VpcStackPublicSubnet1RouteTable4FE62862
+      DestinationCidrBlock: 0.0.0.0/0
+      GatewayId:
+        Ref: VpcStackIGW299C5A78
+    DependsOn:
+      - VpcStackVPCGW565B132F
+    Metadata:
+      aws:cdk:path: vpc/VpcStack/PublicSubnet1/DefaultRoute
+  VpcStackPublicSubnet1EIPA71BA69D:
+    Type: AWS::EC2::EIP
+    Properties:
+      Domain: vpc
+      Tags:
+        - Key: Name
+          Value: vpc/VpcStack/PublicSubnet1
+    Metadata:
+      aws:cdk:path: vpc/VpcStack/PublicSubnet1/EIP
+  VpcStackPublicSubnet1NATGatewayB384AF90:
+    Type: AWS::EC2::NatGateway
+    Properties:
+      SubnetId:
+        Ref: VpcStackPublicSubnet1Subnet3ACDE2AA
+      AllocationId:
+        Fn::GetAtt:
+          - VpcStackPublicSubnet1EIPA71BA69D
+          - AllocationId
+      Tags:
+        - Key: Name
+          Value: vpc/VpcStack/PublicSubnet1
+    DependsOn:
+      - VpcStackPublicSubnet1DefaultRoute4E14C6B4
+      - VpcStackPublicSubnet1RouteTableAssociation3B798904
+    Metadata:
+      aws:cdk:path: vpc/VpcStack/PublicSubnet1/NATGateway
+  VpcStackPublicSubnet2Subnet1F6A08E8:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId:
+        Ref: VpcStack0F17A1B7
+      AvailabilityZone: us-west-2b
+      CidrBlock: 10.0.1.0/24
+      MapPublicIpOnLaunch: true
+      Tags:
+        - Key: aws-cdk:subnet-name
+          Value: Public
+        - Key: aws-cdk:subnet-type
+          Value: Public
+        - Key: Name
+          Value: vpc/VpcStack/PublicSubnet2
+    Metadata:
+      aws:cdk:path: vpc/VpcStack/PublicSubnet2/Subnet
+  VpcStackPublicSubnet2RouteTable5DDEE0F5:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId:
+        Ref: VpcStack0F17A1B7
+      Tags:
+        - Key: Name
+          Value: vpc/VpcStack/PublicSubnet2
+    Metadata:
+      aws:cdk:path: vpc/VpcStack/PublicSubnet2/RouteTable
+  VpcStackPublicSubnet2RouteTableAssociationFF440051:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      RouteTableId:
+        Ref: VpcStackPublicSubnet2RouteTable5DDEE0F5
+      SubnetId:
+        Ref: VpcStackPublicSubnet2Subnet1F6A08E8
+    Metadata:
+      aws:cdk:path: vpc/VpcStack/PublicSubnet2/RouteTableAssociation
+  VpcStackPublicSubnet2DefaultRoute8B9803F6:
+    Type: AWS::EC2::Route
+    Properties:
+      RouteTableId:
+        Ref: VpcStackPublicSubnet2RouteTable5DDEE0F5
+      DestinationCidrBlock: 0.0.0.0/0
+      GatewayId:
+        Ref: VpcStackIGW299C5A78
+    DependsOn:
+      - VpcStackVPCGW565B132F
+    Metadata:
+      aws:cdk:path: vpc/VpcStack/PublicSubnet2/DefaultRoute
+  VpcStackPublicSubnet2EIPBE670D17:
+    Type: AWS::EC2::EIP
+    Properties:
+      Domain: vpc
+      Tags:
+        - Key: Name
+          Value: vpc/VpcStack/PublicSubnet2
+    Metadata:
+      aws:cdk:path: vpc/VpcStack/PublicSubnet2/EIP
+  VpcStackPublicSubnet2NATGateway8FDE910A:
+    Type: AWS::EC2::NatGateway
+    Properties:
+      SubnetId:
+        Ref: VpcStackPublicSubnet2Subnet1F6A08E8
+      AllocationId:
+        Fn::GetAtt:
+          - VpcStackPublicSubnet2EIPBE670D17
+          - AllocationId
+      Tags:
+        - Key: Name
+          Value: vpc/VpcStack/PublicSubnet2
+    DependsOn:
+      - VpcStackPublicSubnet2DefaultRoute8B9803F6
+      - VpcStackPublicSubnet2RouteTableAssociationFF440051
+    Metadata:
+      aws:cdk:path: vpc/VpcStack/PublicSubnet2/NATGateway
+  VpcStackPublicSubnet3Subnet290057FA:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId:
+        Ref: VpcStack0F17A1B7
+      AvailabilityZone: us-west-2c
+      CidrBlock: 10.0.2.0/24
+      MapPublicIpOnLaunch: true
+      Tags:
+        - Key: aws-cdk:subnet-name
+          Value: Public
+        - Key: aws-cdk:subnet-type
+          Value: Public
+        - Key: Name
+          Value: vpc/VpcStack/PublicSubnet3
+    Metadata:
+      aws:cdk:path: vpc/VpcStack/PublicSubnet3/Subnet
+  VpcStackPublicSubnet3RouteTableFEDDCBC0:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId:
+        Ref: VpcStack0F17A1B7
+      Tags:
+        - Key: Name
+          Value: vpc/VpcStack/PublicSubnet3
+    Metadata:
+      aws:cdk:path: vpc/VpcStack/PublicSubnet3/RouteTable
+  VpcStackPublicSubnet3RouteTableAssociationF0D2CAD0:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      RouteTableId:
+        Ref: VpcStackPublicSubnet3RouteTableFEDDCBC0
+      SubnetId:
+        Ref: VpcStackPublicSubnet3Subnet290057FA
+    Metadata:
+      aws:cdk:path: vpc/VpcStack/PublicSubnet3/RouteTableAssociation
+  VpcStackPublicSubnet3DefaultRoute8F939BA2:
+    Type: AWS::EC2::Route
+    Properties:
+      RouteTableId:
+        Ref: VpcStackPublicSubnet3RouteTableFEDDCBC0
+      DestinationCidrBlock: 0.0.0.0/0
+      GatewayId:
+        Ref: VpcStackIGW299C5A78
+    DependsOn:
+      - VpcStackVPCGW565B132F
+    Metadata:
+      aws:cdk:path: vpc/VpcStack/PublicSubnet3/DefaultRoute
+  VpcStackPublicSubnet3EIP0521B737:
+    Type: AWS::EC2::EIP
+    Properties:
+      Domain: vpc
+      Tags:
+        - Key: Name
+          Value: vpc/VpcStack/PublicSubnet3
+    Metadata:
+      aws:cdk:path: vpc/VpcStack/PublicSubnet3/EIP
+  VpcStackPublicSubnet3NATGatewayB101FD95:
+    Type: AWS::EC2::NatGateway
+    Properties:
+      SubnetId:
+        Ref: VpcStackPublicSubnet3Subnet290057FA
+      AllocationId:
+        Fn::GetAtt:
+          - VpcStackPublicSubnet3EIP0521B737
+          - AllocationId
+      Tags:
+        - Key: Name
+          Value: vpc/VpcStack/PublicSubnet3
+    DependsOn:
+      - VpcStackPublicSubnet3DefaultRoute8F939BA2
+      - VpcStackPublicSubnet3RouteTableAssociationF0D2CAD0
+    Metadata:
+      aws:cdk:path: vpc/VpcStack/PublicSubnet3/NATGateway
+  VpcStackPrivateSubnet1SubnetECAA9AC8:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId:
+        Ref: VpcStack0F17A1B7
+      AvailabilityZone: us-west-2a
+      CidrBlock: 10.0.3.0/24
+      MapPublicIpOnLaunch: false
+      Tags:
+        - Key: aws-cdk:subnet-name
+          Value: Private
+        - Key: aws-cdk:subnet-type
+          Value: Private
+        - Key: Name
+          Value: vpc/VpcStack/PrivateSubnet1
+    Metadata:
+      aws:cdk:path: vpc/VpcStack/PrivateSubnet1/Subnet
+  VpcStackPrivateSubnet1RouteTable25FDF5F8:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId:
+        Ref: VpcStack0F17A1B7
+      Tags:
+        - Key: Name
+          Value: vpc/VpcStack/PrivateSubnet1
+    Metadata:
+      aws:cdk:path: vpc/VpcStack/PrivateSubnet1/RouteTable
+  VpcStackPrivateSubnet1RouteTableAssociation0FFF3070:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      RouteTableId:
+        Ref: VpcStackPrivateSubnet1RouteTable25FDF5F8
+      SubnetId:
+        Ref: VpcStackPrivateSubnet1SubnetECAA9AC8
+    Metadata:
+      aws:cdk:path: vpc/VpcStack/PrivateSubnet1/RouteTableAssociation
+  VpcStackPrivateSubnet1DefaultRoute983E1C4C:
+    Type: AWS::EC2::Route
+    Properties:
+      RouteTableId:
+        Ref: VpcStackPrivateSubnet1RouteTable25FDF5F8
+      DestinationCidrBlock: 0.0.0.0/0
+      NatGatewayId:
+        Ref: VpcStackPublicSubnet1NATGatewayB384AF90
+    Metadata:
+      aws:cdk:path: vpc/VpcStack/PrivateSubnet1/DefaultRoute
+  VpcStackPrivateSubnet2SubnetFBEE5372:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId:
+        Ref: VpcStack0F17A1B7
+      AvailabilityZone: us-west-2b
+      CidrBlock: 10.0.4.0/24
+      MapPublicIpOnLaunch: false
+      Tags:
+        - Key: aws-cdk:subnet-name
+          Value: Private
+        - Key: aws-cdk:subnet-type
+          Value: Private
+        - Key: Name
+          Value: vpc/VpcStack/PrivateSubnet2
+    Metadata:
+      aws:cdk:path: vpc/VpcStack/PrivateSubnet2/Subnet
+  VpcStackPrivateSubnet2RouteTable83187A33:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId:
+        Ref: VpcStack0F17A1B7
+      Tags:
+        - Key: Name
+          Value: vpc/VpcStack/PrivateSubnet2
+    Metadata:
+      aws:cdk:path: vpc/VpcStack/PrivateSubnet2/RouteTable
+  VpcStackPrivateSubnet2RouteTableAssociation5B7FAA59:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      RouteTableId:
+        Ref: VpcStackPrivateSubnet2RouteTable83187A33
+      SubnetId:
+        Ref: VpcStackPrivateSubnet2SubnetFBEE5372
+    Metadata:
+      aws:cdk:path: vpc/VpcStack/PrivateSubnet2/RouteTableAssociation
+  VpcStackPrivateSubnet2DefaultRoute8D3C16A0:
+    Type: AWS::EC2::Route
+    Properties:
+      RouteTableId:
+        Ref: VpcStackPrivateSubnet2RouteTable83187A33
+      DestinationCidrBlock: 0.0.0.0/0
+      NatGatewayId:
+        Ref: VpcStackPublicSubnet2NATGateway8FDE910A
+    Metadata:
+      aws:cdk:path: vpc/VpcStack/PrivateSubnet2/DefaultRoute
+  VpcStackPrivateSubnet3SubnetB7C69E7D:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId:
+        Ref: VpcStack0F17A1B7
+      AvailabilityZone: us-west-2c
+      CidrBlock: 10.0.5.0/24
+      MapPublicIpOnLaunch: false
+      Tags:
+        - Key: aws-cdk:subnet-name
+          Value: Private
+        - Key: aws-cdk:subnet-type
+          Value: Private
+        - Key: Name
+          Value: vpc/VpcStack/PrivateSubnet3
+    Metadata:
+      aws:cdk:path: vpc/VpcStack/PrivateSubnet3/Subnet
+  VpcStackPrivateSubnet3RouteTable9C543BD3:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId:
+        Ref: VpcStack0F17A1B7
+      Tags:
+        - Key: Name
+          Value: vpc/VpcStack/PrivateSubnet3
+    Metadata:
+      aws:cdk:path: vpc/VpcStack/PrivateSubnet3/RouteTable
+  VpcStackPrivateSubnet3RouteTableAssociation7E077F1D:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      RouteTableId:
+        Ref: VpcStackPrivateSubnet3RouteTable9C543BD3
+      SubnetId:
+        Ref: VpcStackPrivateSubnet3SubnetB7C69E7D
+    Metadata:
+      aws:cdk:path: vpc/VpcStack/PrivateSubnet3/RouteTableAssociation
+  VpcStackPrivateSubnet3DefaultRoute33B85BED:
+    Type: AWS::EC2::Route
+    Properties:
+      RouteTableId:
+        Ref: VpcStackPrivateSubnet3RouteTable9C543BD3
+      DestinationCidrBlock: 0.0.0.0/0
+      NatGatewayId:
+        Ref: VpcStackPublicSubnet3NATGatewayB101FD95
+    Metadata:
+      aws:cdk:path: vpc/VpcStack/PrivateSubnet3/DefaultRoute
+  VpcStackIGW299C5A78:
+    Type: AWS::EC2::InternetGateway
+    Properties:
+      Tags:
+        - Key: Name
+          Value: vpc/VpcStack
+    Metadata:
+      aws:cdk:path: vpc/VpcStack/IGW
+  VpcStackVPCGW565B132F:
+    Type: AWS::EC2::VPCGatewayAttachment
+    Properties:
+      VpcId:
+        Ref: VpcStack0F17A1B7
+      InternetGatewayId:
+        Ref: VpcStackIGW299C5A78
+    Metadata:
+      aws:cdk:path: vpc/VpcStack/VPCGW
+  VpcStackS348B4C9B9:
+    Type: AWS::EC2::VPCEndpoint
+    Properties:
+      ServiceName:
+        Fn::Join:
+          - ""
+          - - com.amazonaws.
+            - Ref: AWS::Region
+            - .s3
+      VpcId:
+        Ref: VpcStack0F17A1B7
+      RouteTableIds:
+        - Ref: VpcStackPrivateSubnet1RouteTable25FDF5F8
+        - Ref: VpcStackPrivateSubnet2RouteTable83187A33
+        - Ref: VpcStackPrivateSubnet3RouteTable9C543BD3
+        - Ref: VpcStackPublicSubnet1RouteTable4FE62862
+        - Ref: VpcStackPublicSubnet2RouteTable5DDEE0F5
+        - Ref: VpcStackPublicSubnet3RouteTableFEDDCBC0
+      VpcEndpointType: Gateway
+    Metadata:
+      aws:cdk:path: vpc/VpcStack/S3/Resource
