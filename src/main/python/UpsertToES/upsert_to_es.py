@@ -74,7 +74,8 @@ def lambda_handler(event, context):
           dt = datetime.datetime.strptime(json_data[k], DATE_FORMAT)
           json_data[k] = dt.strftime("%Y-%m-%dT%H:%M:%SZ")
 
-      es_index_action_meta = {"index": {"_index": ES_INDEX, "_type": ES_TYPE, "_id": json_data['doc_id']}}
+      # es_index_action_meta = {"index": {"_index": ES_INDEX, "_type": ES_TYPE, "_id": json_data['doc_id']}}
+      es_index_action_meta = {"index": {"_index": ES_INDEX, "_id": json_data['doc_id']}}
       doc_list.append(es_index_action_meta)
       doc_list.append(json_data)
 
