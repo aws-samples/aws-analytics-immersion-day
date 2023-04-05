@@ -3,6 +3,7 @@ Before starting the lab, create and configure EC2, the IAM user you need.
 
 ## Table of Contents
 * [Creating an IAM User](#iam-user)
+* [Creating a new VPC](#vpc)
 * [Creating Security Groups](#security-group)
 * [Launch an EC2 Instance](#ec2-launch)
 * [Configuring your EC2 Instance](#ec2-user-configuration)
@@ -21,6 +22,24 @@ In last, uncheck **Require password reset**.
 6. Click the **\[Next: Review\]** button, check the information, and click the **Create user** button.
 7. Click the **Download.csv** button to download the new user's information. This file is essential for setting up EC2, so save it in a location that is easy to remember.
  ![iam-user-download](../assets/iam-user-download.png)
+
+\[[Top](#top)\]
+
+## <a name="vpc"></a>Creating a new VPC
+Let’s create a new VPC to use during the lab.
+
+1. Log in to the AWS Management Console and select CloudFormation from the list of services.
+2. Select **Create stack** from the left menu.
+3. Choose **With new resources (standard)** from the dropdown list.
+   ![cfn-stacks-create-stack](../assets/cfn-stacks-create-stack.png)
+4. In **Specify template** section, choose **Upload a template file**.
+5. Click **Choose file** button, and upload a cloudformation template download from [https://github.com/aws-samples/aws-analytics-immersion-day](https://github.com/aws-samples/aws-analytics-immersion-day).
+   ![cfn-step1-create-stack](../assets/cfn-step1-create-stack.png)
+   ::alert[Make sure you choose a cloudformation template file corresponding to your region.]{type="info"}
+6. Click **Next** button.
+7. Enter Stack name (e.g., `vpc`), and Click **Next** button.
+8. Click **Next** button to skip  `Step 3 Configure stack options`.
+9.  Click **Submit** button.
 
 \[[Top](#top)\]
 

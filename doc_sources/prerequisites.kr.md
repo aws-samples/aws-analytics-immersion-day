@@ -3,6 +3,7 @@
 
 ## Table of Contents
 * [IAM User 생성](#iam-user)
+* [VPC 생성](#vpc)
 * [Security Groups 생성](#security-group)
 * [EC2 생성](#ec2-launch)
 * [EC2 설정](#ec2-user-configuration)
@@ -22,6 +23,24 @@ AWS Management Console access 둘 모두를 선택합니다. Console password에
 6. **\[Next: Review\]** 버튼을 클릭하고 정보를 확인한 뒤 Create user 버튼을 클릭하여 사용자 생성을 완료합니다.
 7. Download.csv 버튼을 클릭하여 생성한 사용자의 정보를 다운 받습니다. EC2 설정에 꼭 필요한 파일이므로 기억하기 쉬운 위치에 저장합니다.
  ![iam-user-download](../assets/iam-user-download.png)
+
+\[[Top](#top)\]
+
+## <a name="vpc"></a>VPC 생성
+실습 하는 동안 사용할 새로운 VPC를 생성합니다.
+1. AWS Management Console에 로그인 한 뒤 CloudFormation 서비스에 접속합니다.
+2. 왼쪽 메뉴에서 **Create stack** 을 선택합니다.
+3. Dropdown 목록에서 **With new resources (standard)** 을 선택합니다.
+   ![cfn-stacks-create-stack](../assets/cfn-stacks-create-stack.png)
+4. **Specify template** 섹션에서 **Upload a template file** 를 선택합니다.
+5. **Choose file** 을 클릭해서, [https://github.com/aws-samples/aws-analytics-immersion-day](https://github.com/aws-samples/aws-analytics-immersion-day)에서 로컬 PC에 다운로드 받은 CloudFormation Template 파일을 업로드 합니다.
+   ![cfn-step1-create-stack](../assets/cfn-step1-create-stack.png)
+   ::alert[현재 실습 중인 AWS Region에서 사용할 수 있는 Cloudformation Template 파일을 업로드 해야합니다.]{type="info"}
+6. **Next** 버튼을 클릭해서 다음 단계로 이동합니다.
+7.  CloudFormation 스택 이름(예: `vpc`)을 입력하고, **Next** 을 클릭해서 다음 단계로 진행합니다.
+8.  나머지 설정을 그대로 두고, 마지막 단계로 이동합니다.
+9.  **Submit** 버튼을 클릭해서 VPC를 생성합니다.
+
 \[[Top](#top)\]
 
 ## <a name="security-group"></a>Security Groups 생성
