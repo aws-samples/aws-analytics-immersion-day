@@ -355,7 +355,7 @@ For how to create `es-lib.zip`, refer to [Example of creating a Python package t
 4. Select `Python 3.8` in Runtime.
 5. Select **Create a function**.
  ![aws-lambda-create-function](./assets/aws-lambda-create-function.png)
-6. Select **\[Add trigger\]** in the Designer tab. In Layers, choose **Add a layer**.
+6. In the Designer tab. choose **Add a layer** at Layers.
 7. Select `Custome Layers` in **Choose a Layer** section, and choose Name and Version of the previously created layer as Name and Version in **Custom layers**.
  ![aws-lambda-add-layer-to-function](./assets/aws-lambda-add-layer-to-function.png)
 8. Click **Add**.
@@ -492,7 +492,7 @@ Choose the VPC and subnets where you created the domain for the OpenSearch servi
 6. Choose **Create role**.
 7. Name your role; for example, `firehose_role`.
 8. For cluster permissions, add `cluster_composite_ops` and `cluster_monitor`.
-9.  Under **Index permissions**, choose **Index Patterns** and enter <i>index-name*</i>; for example, `retail-trans*`.
+9.  Under **Index permissions**, choose **Index Patterns** and enter <i>index-name*</i>; for example, `retail*`.
 10. Under **Permissions**, add three action groups: `crud`, `create_index`, and `manage`.
 11. Choose **Create**.
     ![ops-create-firehose_role](./assets/ops-create-firehose_role.png)
