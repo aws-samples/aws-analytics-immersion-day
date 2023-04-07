@@ -17,7 +17,7 @@ Resources:
       VpcId:
         Ref: VpcStack0F17A1B7
       AvailabilityZone: us-west-2a
-      CidrBlock: 10.0.0.0/24
+      CidrBlock: 10.0.0.0/20
       MapPublicIpOnLaunch: true
       Tags:
         - Key: aws-cdk:subnet-name
@@ -91,7 +91,7 @@ Resources:
       VpcId:
         Ref: VpcStack0F17A1B7
       AvailabilityZone: us-west-2b
-      CidrBlock: 10.0.1.0/24
+      CidrBlock: 10.0.16.0/20
       MapPublicIpOnLaunch: true
       Tags:
         - Key: aws-cdk:subnet-name
@@ -165,7 +165,7 @@ Resources:
       VpcId:
         Ref: VpcStack0F17A1B7
       AvailabilityZone: us-west-2c
-      CidrBlock: 10.0.2.0/24
+      CidrBlock: 10.0.32.0/20
       MapPublicIpOnLaunch: true
       Tags:
         - Key: aws-cdk:subnet-name
@@ -239,7 +239,7 @@ Resources:
       VpcId:
         Ref: VpcStack0F17A1B7
       AvailabilityZone: us-west-2a
-      CidrBlock: 10.0.3.0/24
+      CidrBlock: 10.0.48.0/20
       MapPublicIpOnLaunch: false
       Tags:
         - Key: aws-cdk:subnet-name
@@ -285,7 +285,7 @@ Resources:
       VpcId:
         Ref: VpcStack0F17A1B7
       AvailabilityZone: us-west-2b
-      CidrBlock: 10.0.4.0/24
+      CidrBlock: 10.0.64.0/20
       MapPublicIpOnLaunch: false
       Tags:
         - Key: aws-cdk:subnet-name
@@ -331,7 +331,7 @@ Resources:
       VpcId:
         Ref: VpcStack0F17A1B7
       AvailabilityZone: us-west-2c
-      CidrBlock: 10.0.5.0/24
+      CidrBlock: 10.0.80.0/20
       MapPublicIpOnLaunch: false
       Tags:
         - Key: aws-cdk:subnet-name
