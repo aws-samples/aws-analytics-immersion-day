@@ -172,7 +172,7 @@ In the navigation pane, select the ec2 instance previously created, and then cli
        $ aws configure
        AWS Access Key ID [None]: <Access key ID>
        AWS Secret Access Key [None]: <Secret access key>
-       Default region name [None]: us-east-1
+       Default region name [None]: us-west-2
        Default output format [None]:
        ```
 
@@ -181,7 +181,7 @@ In the navigation pane, select the ec2 instance previously created, and then cli
        $ aws configure
        AWS Access Key ID [****************EETA]:
        AWS Secret Access Key [****************CixY]:
-       Default region name [None]: us-east-1
+       Default region name [None]: us-west-2
        Default output format [None]:
        ```
 

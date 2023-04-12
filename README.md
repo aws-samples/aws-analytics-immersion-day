@@ -93,7 +93,7 @@ In this step, we will generate sample data and verify it is being processed and 
 2. Run `gen_kinesis_data.py` script on the EC2 instance by entering the following command -
     ```shell script
     python3 gen_kinesis_data.py \
-      --region-name us-east-1 \
+      --region-name us-west-2 \
       --service-name kinesis \
       --stream-name retail-trans
     ```
@@ -377,7 +377,7 @@ For how to create `es-lib.zip`, refer to [Example of creating a Python package t
     ES_INDEX=retail
     ES_TYPE=trans
     REQUIRED_FIELDS=Invoice,StockCode,Customer_ID
-    REGION_NAME=us-east-1
+    REGION_NAME=us-west-2
     DATE_TYPE_FIELDS=InvoiceDate
     ```
 13. Click **Save**.
@@ -466,7 +466,7 @@ Choose the VPC and subnets where you created the domain for the OpenSearch servi
               User ubuntu
               IdentitiesOnly yes
               IdentityFile ~/.ssh/analytics-hol.pem
-              LocalForward 9200 vpc-retail-qvwlxanar255vswqna37p2l2cy.us-east-1.es.amazonaws.com:443
+              LocalForward 9200 vpc-retail-qvwlxanar255vswqna37p2l2cy.us-west-2.es.amazonaws.com:443
             ~$
             ```
       2. Run `ssh -N estunnel` in Terminal.
@@ -481,7 +481,7 @@ Choose the VPC and subnets where you created the domain for the OpenSearch servi
           <pre>mssh ec2-user@{<i>bastion-ec2-instance-id</i>} -N -L 9200:{<i>opensearch-endpoint</i>}:443</pre>
         + ex)
           ```
-          $ mssh ec2-user@i-0203f0d6f37ccbe5b -N -L 9200:vpc-retail-qvwlxanar255vswqna37p2l2cy.us-east-1.es.amazonaws.com:443
+          $ mssh ec2-user@i-0203f0d6f37ccbe5b -N -L 9200:vpc-retail-qvwlxanar255vswqna37p2l2cy.us-west-2.es.amazonaws.com:443
           ```
 
 2. Connect to `https://localhost:9200/_dashboards/app/login?` in a web browser.
@@ -551,7 +551,7 @@ Visualize data collected from Amazon OpenSearch Service using Kibana.
               User ubuntu
               IdentitiesOnly yes
               IdentityFile ~/.ssh/analytics-hol.pem
-              LocalForward 9200 vpc-retail-qvwlxanar255vswqna37p2l2cy.us-east-1.es.amazonaws.com:443
+              LocalForward 9200 vpc-retail-qvwlxanar255vswqna37p2l2cy.us-west-2.es.amazonaws.com:443
             ~$
             ```
       2. Run `ssh -N estunnel` in Terminal.
@@ -566,7 +566,7 @@ Visualize data collected from Amazon OpenSearch Service using Kibana.
           <pre>mssh ec2-user@{<i>bastion-ec2-instance-id</i>} -N -L 9200:{<i>opensearch-endpoint</i>}:443</pre>
         + ex)
           ```
-          $ mssh ec2-user@i-0203f0d6f37ccbe5b -N -L 9200:vpc-retail-qvwlxanar255vswqna37p2l2cy.us-east-1.es.amazonaws.com:443
+          $ mssh ec2-user@i-0203f0d6f37ccbe5b -N -L 9200:vpc-retail-qvwlxanar255vswqna37p2l2cy.us-west-2.es.amazonaws.com:443
           ```
 
 2. Connect to `https://localhost:9200/_dashboards/app/login?` in a web browser.
@@ -768,7 +768,7 @@ For example, after creating an IAM User called cdk_user, add it to `~/.aws/confi
     [profile cdk_user]
     aws_access_key_id=AKIAIOSFODNN7EXAMPLE
     aws_secret_access_key=wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY
-    region=us-east-1
+    region=us-west-2
     ```
 
 2. Create a Python package to register in the Lambda Layer and store it in the s3 bucket. For example, create an s3 bucket named `lambda-layer-resources` so that you can save the elasticsearch package to register in the Lambda Layer as follows.
@@ -789,7 +789,7 @@ After setting, deploy using the `cdk deploy` command.
     $ source .env/bin/activate
     (.env) $ pip install -r requirements.txt
     (.env) $ export CDK_DEFAULT_ACCOUNT=$(aws sts get-caller-identity --query Account --output text)
-    (.env) $ export CDK_DEFAULT_REGION=us-east-1
+    (.env) $ export CDK_DEFAULT_REGION=us-west-2
     (.env) $ cdk bootstrap aws://${CDK_DEFAULT_ACCOUNT}/${CDK_DEFAULT_REGION}
     (.env) $ export S3_BUCKET_LAMBDA_LAYER_LIB=lambda-layer-resources
     (.env) $ cdk --profile cdk_user deploy --require-approval never --all
@@ -799,7 +799,7 @@ After setting, deploy using the `cdk deploy` command.
 
     ```shell script
     (.env) $ export CDK_DEFAULT_ACCOUNT=$(aws sts get-caller-identity --query Account --output text)
-    (.env) $ export CDK_DEFAULT_REGION=us-east-1
+    (.env) $ export CDK_DEFAULT_REGION=us-west-2
     (.env) $ export S3_BUCKET_LAMBDA_LAYER_LIB=lambda-layer-resources
     (.env) $ cdk --profile cdk_user deploy --require-approval never --all
     ```
