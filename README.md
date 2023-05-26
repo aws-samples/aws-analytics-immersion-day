@@ -30,7 +30,7 @@ Through this lab, you will set up a `Data Collection -> Store -> Analysis/Proces
 ## <a name="preliminaries"></a>Lab setup
 Before starting the lab, create and configure EC2, the IAM user you need.
  - [Prepare the lab environment](./doc_sources/prerequisites.en.md)
- 
+
 \[[Top](#Top)\]
 
 ## <a name="kinesis-data-streams"></a>Create Kinesis Data Streams to receive input data
@@ -75,7 +75,7 @@ Kinesis Data Firehose will allow collecting data in real-time and batch it to lo
 
     :warning: **S3 prefix or S3 error prefix pattern must not contain a new line(`\n`) character. If you have copied the example pattern and pasted it into the S3 prefix or S3 error prefix, it is a good idea to remove the trailing line breaks.**
 
-    After entering S3 prefix and 3 error prefix, click **Next**. 
+    After entering S3 prefix and 3 error prefix, click **Next**.
     (**cf.** [Custom Prefixes for Amazon S3 Objects](https://docs.aws.amazon.com/firehose/latest/dev/s3-prefixes.html))
 7. (Step 4: Configure settings) Set buffer size to `1` MB and buffer interval to `60` seconds in **S3 buffer conditions**. Leave everything else as default.
 8. Under **Permissions** IAM role, select **Create or update IAM role** and click the **Next** button.
@@ -317,12 +317,12 @@ An OpenSearch cluster is created to store and analyze data in real time. An Open
 
 ![aws-analytics-system-build-steps](./assets/aws-analytics-system-build-steps.svg)
 
-1. In the [AWS Management Console](https://aws.amazon.com), choose **Amazon OpenSearch Service** under **Analytics**. 
+1. In the [AWS Management Console](https://aws.amazon.com), choose **Amazon OpenSearch Service** under **Analytics**.
 2. Choose **Create a new domain**.
 3. Provide a name for the domain. The examples in this tutorial use the name `retail`.
 4. Ignore the **Custom endpoint** setting.
 5. For the deployment type, choose **Production**.
-6. For **Version**, choose the latest version. For more information about the versions, see [Supported OpenSearch Versions](https://docs.aws.amazon.com/opensearch-service/latest/developerguide/what-is.html#choosing-version). 
+6. For **Version**, choose the latest version. For more information about the versions, see [Supported OpenSearch Versions](https://docs.aws.amazon.com/opensearch-service/latest/developerguide/what-is.html#choosing-version).
 7. Under **Data nodes**, change the instance type to `t3.small.search` and keep the default value of three nodes.
 8. Under **Network**, choose **VPC access (recommended)**. Choose the appropriate VPC and subnet. Select the `es-cluster-sg` created in the preparation step as Security Groups.
 9. In the fine-grained access control settings, choose **Create master user**. Provide a username and password.
@@ -472,7 +472,7 @@ Choose the VPC and subnets where you created the domain for the OpenSearch servi
       2. Run `ssh -N estunnel` in Terminal.
 
    * Option 2) Connect using the EC2 Instance Connect CLI
- 
+
       1. Install EC2 Instance Connect CLI
           ```
           sudo pip install ec2instanceconnectcli
@@ -570,7 +570,7 @@ Visualize data collected from Amazon OpenSearch Service using Kibana.
           ```
 
 2. Connect to `https://localhost:9200/_dashboards/app/login?` in a web browser.
-3. Enter the master user and password that you set up when you created the Amazon OpenSearch Service endpoint.
+3. Enter the master user and password that you set up when you created the Amazon OpenSearch Service endpoint. The user name and password of the master user are stored in the [AWS Secrets Manager](https://console.aws.amazon.com/secretsmanager/listsecrets) as a name such as `OpenSearchMasterUserSecret1-xxxxxxxxxxxx`.
 4. In the Welcome screen, click the toolbar icon to the left side of **Home** button. Choose **Stack Managerment**.
    ![ops-dashboards-sidebar-menu](./assets/ops-dashboards-sidebar-menu.png)
 5. (Management / Create index pattern) In **Step 1 of 2: Define index pattern** of **Create index pattern**, enter `retail*` in Index pattern.
@@ -759,7 +759,7 @@ When deployed as CDK, `1(a), 1(b), 1(c), 1(f), 2(b), 2(a)` in the architecture d
 
 ![aws-analytics-system-build-steps-extra](./assets/aws-analytics-system-build-steps-extra.svg)
 
-1. Refer to [Getting Started With the AWS CDK](https://docs.aws.amazon.com/cdk/latest/guide/getting_started.html) to install cdk. 
+1. Refer to [Getting Started With the AWS CDK](https://docs.aws.amazon.com/cdk/latest/guide/getting_started.html) to install cdk.
 Create an IAM User to be used when running cdk and register it in `~/.aws/config`. (**cf.** [Creating an IAM User](#preliminaries))<br/>
 For example, after creating an IAM User called cdk_user, add it to `~/.aws/config` as shown below.
 
@@ -780,7 +780,7 @@ For example, after creating an IAM User called cdk_user, add it to `~/.aws/confi
     ```
 
 3. After downloading the source code from git, enter the s3 bucket name where the package to be registered in the lambda layer is stored in an environment variable called `S3_BUCKET_LAMBDA_LAYER_LIB`.
-After setting, deploy using the `cdk deploy` command. 
+After setting, deploy using the `cdk deploy` command.
 
     ```shell script
     $ git clone https://github.com/aws-samples/aws-analytics-immersion-day.git
@@ -803,7 +803,7 @@ After setting, deploy using the `cdk deploy` command.
     (.env) $ export S3_BUCKET_LAMBDA_LAYER_LIB=lambda-layer-resources
     (.env) $ cdk --profile cdk_user deploy --require-approval never --all
     ```
-    
+
 3. [Enable the Lambda function to ingest records into Amazon OpenSearch.](#create-firehose-role)
 
 ### Clean Up
