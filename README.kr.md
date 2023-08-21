@@ -21,7 +21,7 @@
 * [Recap and Review](#recap-and-review)
 * [Resources](#resources)
 * [Reference](#reference)
-* [Appendix](#appendix)
+* [Deployment by AWS CDK](#deployment-by-aws-cdk)
 
 ## <a name="solutions-architecture-overview"></a>Solutions Architecture Overview
 ![aws-analytics-system-architecture](aws-analytics-system-arch.svg)
@@ -31,7 +31,7 @@
 ## <a name="preliminaries"></a>사전 준비 작업
 실습을 시작 하기 전에 필요한 IAM User, EC2를 생성하고 및 구성합니다.
  - [실습 환경 준비 하기](./doc_sources/prerequisites.kr.md)
- 
+
 \[[Top](#Top)\]
 
 ## <a name="kinesis-data-streams"></a>입력 데이터를 수신할 Kinesis Data Streams 생성하기
@@ -60,14 +60,14 @@ AWS Management Console에서 Kinesis 서비스를 선택합니다.
 3. (Step 1: Name and source) Delivery stream name에 원하는 이름(예: `retail-trans`)를 입력합니다.
 4. **Choose a source** 에서 `Kinesis Data Stream` 를 선택하고, 앞서 생성한 Kinesis Data Stream(예: `retail-trans`)을 선택 한 후,
 **Next**를 클릭합니다.
-5. (Step 2: Process records) **Transform source records with AWS Lambda / Convert record format** 은 
+5. (Step 2: Process records) **Transform source records with AWS Lambda / Convert record format** 은
 둘다 default 옵션 `Disabled`를 선택하고 **Next**를 클릭합니다.
 6. (Step 3: Choose a destination) Destination은 Amazon S3를 선택하고, `Create new` 를 클릭해서 S3 bucket을 생성합니다.
 S3 bucket 이름은 이번 실습에서는 `aws-analytics-immersion-day-xxxxxxxx` 형식으로 `xxxxxxxx` 는 bucket 이름이 겹치지 않도록 임의의 숫자나
 문자를 입력 합니다.
 
     S3 prefix를 입력합니다. 예를 들어서 다음과 같이 입력 합니다.
-    
+
     ```buildoutcfg
     json-data/year=!{timestamp:yyyy}/month=!{timestamp:MM}/day=!{timestamp:dd}/hour=!{timestamp:HH}/
     ```
@@ -106,7 +106,7 @@ S3 bucket 이름은 이번 실습에서는 `aws-analytics-immersion-day-xxxxxxxx
     python3 gen_kinesis_data.py --help
     ```
 3. 매 초 데이터가 발생하는 것을 확인합니다. 충분한 데이터 수집을 위해 실행 중인 상태로 다음 단계를 진행합니다.
-4. 몇 분 뒤 생성한 S3 bucket을 확인해 보면, 생성된 원본 데이터가 Kinesis Data Firehose를 통해 S3에 저장되는 것을 확인할 수 있습니다. 
+4. 몇 분 뒤 생성한 S3 bucket을 확인해 보면, 생성된 원본 데이터가 Kinesis Data Firehose를 통해 S3에 저장되는 것을 확인할 수 있습니다.
 
 \[[Top](#top)\]
 
@@ -139,24 +139,24 @@ Amazon Athena를 이용해서 S3에 저장된 데이터를 기반으로 테이�
 2. 쿼리 창에 다음 CREATE TABLE 문을 입력한 후 **\[Run Query\]** 를 선택합니다.
     ```buildoutcfg
     CREATE EXTERNAL TABLE IF NOT EXISTS `mydatabase.retail_trans_json`(
-      `invoice` string COMMENT 'Invoice number', 
-      `stockcode` string COMMENT 'Product (item) code', 
-      `description` string COMMENT 'Product (item) name', 
-      `quantity` int COMMENT 'The quantities of each product (item) per transaction', 
-      `invoicedate` timestamp COMMENT 'Invoice date and time', 
-      `price` float COMMENT 'Unit price', 
-      `customer_id` string COMMENT 'Customer number', 
+      `invoice` string COMMENT 'Invoice number',
+      `stockcode` string COMMENT 'Product (item) code',
+      `description` string COMMENT 'Product (item) name',
+      `quantity` int COMMENT 'The quantities of each product (item) per transaction',
+      `invoicedate` timestamp COMMENT 'Invoice date and time',
+      `price` float COMMENT 'Unit price',
+      `customer_id` string COMMENT 'Customer number',
       `country` string COMMENT 'Country name')
-    PARTITIONED BY ( 
-      `year` int, 
-      `month` int, 
-      `day` int, 
+    PARTITIONED BY (
+      `year` int,
+      `month` int,
+      `day` int,
       `hour` int)
-    ROW FORMAT SERDE 
-      'org.openx.data.jsonserde.JsonSerDe' 
-    STORED AS INPUTFORMAT 
-      'org.apache.hadoop.mapred.TextInputFormat' 
-    OUTPUTFORMAT 
+    ROW FORMAT SERDE
+      'org.openx.data.jsonserde.JsonSerDe'
+    STORED AS INPUTFORMAT
+      'org.apache.hadoop.mapred.TextInputFormat'
+    OUTPUTFORMAT
       'org.apache.hadoop.hive.ql.io.IgnoreKeyTextOutputFormat'
     LOCATION
       's3://aws-analytics-immersion-day-xxxxxxxx/json-data'
@@ -198,7 +198,7 @@ Notification email address는 개인 Email 주소를 입력합니다.
 6. 아래와 같은 창이 뜨면, 데이터가 저장되어 있는 `aws-analytics-immersion-day-xxxxxxxx` 를 선택한 후 **\[Finish\]** 를 클릭합니다.
  ![aws-quicksight-choose-s3-bucket](./assets/aws-quicksight-choose-s3-bucket.png)
 7. 계정이 생성된 후 **\[Go to Amazon QuickSight\]** 버튼을 클릭합니다.
-8. 우측 상단에 region이 데이터를 저장하고 있는 S3 bucket의 region과 동일하게 설정한 후, 
+8. 우측 상단에 region이 데이터를 저장하고 있는 S3 bucket의 region과 동일하게 설정한 후,
 좌측 상단 **\[New Analysis\]** 를 클릭합니다.
 9. **\[New Data Set\]** 버튼을 클릭합니다.
  ![aws-quicksight-new_data_sets](./assets/aws-quicksight-new_data_sets.png)
@@ -243,29 +243,29 @@ Athena의 CTAS(Create Table As Select) 쿼리를 실행하는 AWS Lambda functio
 `ctas_retail_trans_parquet` 테이블의 데이터는 앞서 생성한 S3 bucket의 `s3://aws-analytics-immersion-day-xxxxxxxx/parquet-retail-trans` 위치에 저장할 것 입니다.
     ```buildoutcfg
     CREATE EXTERNAL TABLE `mydatabase.ctas_retail_trans_parquet`(
-      `invoice` string COMMENT 'Invoice number', 
-      `stockcode` string COMMENT 'Product (item) code', 
-      `description` string COMMENT 'Product (item) name', 
-      `quantity` int COMMENT 'The quantities of each product (item) per transaction', 
-      `invoicedate` timestamp COMMENT 'Invoice date and time', 
-      `price` float COMMENT 'Unit price', 
-      `customer_id` string COMMENT 'Customer number', 
+      `invoice` string COMMENT 'Invoice number',
+      `stockcode` string COMMENT 'Product (item) code',
+      `description` string COMMENT 'Product (item) name',
+      `quantity` int COMMENT 'The quantities of each product (item) per transaction',
+      `invoicedate` timestamp COMMENT 'Invoice date and time',
+      `price` float COMMENT 'Unit price',
+      `customer_id` string COMMENT 'Customer number',
       `country` string COMMENT 'Country name')
-    PARTITIONED BY ( 
-      `year` int, 
-      `month` int, 
-      `day` int, 
+    PARTITIONED BY (
+      `year` int,
+      `month` int,
+      `day` int,
       `hour` int)
-    ROW FORMAT SERDE 
-      'org.apache.hadoop.hive.ql.io.parquet.serde.ParquetHiveSerDe' 
-    STORED AS INPUTFORMAT 
-      'org.apache.hadoop.hive.ql.io.parquet.MapredParquetInputFormat' 
-    OUTPUTFORMAT 
+    ROW FORMAT SERDE
+      'org.apache.hadoop.hive.ql.io.parquet.serde.ParquetHiveSerDe'
+    STORED AS INPUTFORMAT
+      'org.apache.hadoop.hive.ql.io.parquet.MapredParquetInputFormat'
+    OUTPUTFORMAT
       'org.apache.hadoop.hive.ql.io.parquet.MapredParquetOutputFormat'
     LOCATION
       's3://aws-analytics-immersion-day-xxxxxxxx/parquet-retail-trans'
     TBLPROPERTIES (
-      'has_encrypted_data'='false', 
+      'has_encrypted_data'='false',
       'parquet.compression'='SNAPPY')
     ;
     ```
@@ -309,10 +309,10 @@ Rule type으로 `Schedule expression`을 선택하고, Schedule expression에 �
     STAGING_OUTPUT_PREFIX=s3://aws-analytics-immersion-day-xxxxxxxx/tmp
     COLUMN_NAMES=invoice,stockcode,description,quantity,invoicedate,price,customer_id,country
     ```
-11. Athena 쿼리를 수행하는데 필요한 IAM Policy를 추가하기 위해서 Execution role에서 
+11. Athena 쿼리를 수행하는데 필요한 IAM Policy를 추가하기 위해서 Execution role에서
 `View the MergeSmallFiles-role-XXXXXXXX role on the IAM console.` 을 클릭 해서 IAM Role을 수정합니다.
  ![aws-athena-ctas-lambda-execution-iam-role](./assets/aws-athena-ctas-lambda-execution-iam-role.png)
-12. IAM Role의 **\[Permissions\]** 탭에서 **\[Attach policies\]** 버튼을 클릭 후, 
+12. IAM Role의 **\[Permissions\]** 탭에서 **\[Attach policies\]** 버튼을 클릭 후,
 **AmazonAthenaFullAccess**, **AmazonS3FullAccess** 를 차례로 추가 합니다.
  ![aws-athena-ctas-lambda-iam-role-policies](./assets/aws-athena-ctas-lambda-iam-role-policies.png)
 13. Basic settings에서 **\[Edit\]** 선택합니다. Memory와 Timeout을 알맞게 조정합니다.
@@ -451,7 +451,7 @@ Lambda function을 이용해서 Amazon ES에 데이터를 실시간으로 색인
 lamba 함수 실행에 필요한 Execution role에 필요한 IAM Policy를 추가햐야 합니다.
 IAM Role 수정을 위해서 `View the UpsertToES-role-XXXXXXXX role on the IAM console.` 을 클릭 합니다.
  ![aws-lambda-execution-iam-role](./assets/aws-lambda-execution-iam-role.png)
-15. IAM Role의 **\[Permissions\]** 탭에서 **\[Attach policies\]** 버튼을 클릭 후, 
+15. IAM Role의 **\[Permissions\]** 탭에서 **\[Attach policies\]** 버튼을 클릭 후,
 **AWSLambdaVPCAccessExecutionRole**, **AmazonKinesisReadOnlyAccess** 를 차례로 추가 합니다.
  ![aws-lambda-iam-role-policies](./assets/aws-lambda-iam-role-policies.png)
 16. VPC 항목에서 **\[Edit\]** 버튼을 클릭해서 Edit VPC 화면으로 이동 한다. VPC connection 에서 `Custom VPC` 를 선택합니다.
@@ -557,7 +557,7 @@ Lambda Architecture 구조의 Business Intelligent System을 구축해 보셨습
 + [Amazon Kinesis Data Streams](https://docs.aws.amazon.com/streams/latest/dev/introduction.html)
 + [Amazon QuickSight](https://docs.aws.amazon.com/quicksight/latest/user/welcome.html)
 + [AWS Lambda Layers](https://docs.aws.amazon.com/lambda/latest/dg/configuration-layers.html#configuration-layers-path)
-    + <a name="aws-lambda-layer-python-packages"></a>AWS Lambda Layer에 등록할 Python 패키지 생성 예제: **opensearch** 
+    + <a name="aws-lambda-layer-python-packages"></a>AWS Lambda Layer에 등록할 Python 패키지 생성 예제: **opensearch**
 
       :warning: **Python 패키지를 생성할 때는 AWS Lambda의 실행환경과 동일한 환경에서 생성해야하므로, Amazon Linux에서 Python 패키지를 생성하는 것을 추천 드립니다.**
       <pre>
@@ -651,7 +651,7 @@ Lambda Architecture 구조의 Business Intelligent System을 구축해 보셨습
 
 \[[Top](#top)\]
 
-## Appendix
+## Deployment by AWS CDK
 
 AWS CDK를 이용해서 배포하는 방법을 소개 합니다.
 

@@ -20,7 +20,7 @@ Through this lab, you will set up a `Data Collection -> Store -> Analysis/Proces
 * [Recap and Review](#recap-and-review)
 * [Resources](#resources)
 * [Reference](#reference)
-* [Deployment by AWS CDK](#appendix)
+* [Deployment by AWS CDK](#deployment-by-aws-cdk)
 
 ## <a name="solutions-architecture-overview"></a>Solutions Architecture Overview
 ![aws-analytics-system-architecture](aws-analytics-system-arch.svg)
