@@ -464,6 +464,89 @@ security groups을 선택합니다.
 21. **\[Add\]** 를 선택합니다.
  ![aws-lambda-kinesis](./assets/aws-lambda-kinesis.png)
 
+### <a name="create-firehose-role"></a>Lambda 함수에서 Amazon OpenSearch에 데이터를 넣을 수 있는 권한 생성하기
+
+Lambda 함수가 Amazon OpenSearch Service에 데이터를 넣기 위해서는 Lambda 함수에 OpenSearch에 접근 권한이 필요합니다.
+
+아래와 같은 순서로 OpenSearch에 데이터를 넣는데 필요한 권한을 Lambda 함수에 부여할 수 있습니다.
+
+1. Amazon OpenSearch Cluster를 VPC의 private subnet에 생성했기 때문에, Amazon OpenSearch endpoint와 OpenSearch Dashboards(a.k.a Kibana) endpoint를 public 인터넷으로 접근할 수 없다. 따라서 OpenSearch 에 접속하기 위해서 ssh tunnel을 생성하고, local port forwarding을 해야 합니다.<br/>
+   * Option 1) Using SSH Tunneling
+
+      1. ssh 설정 변경
+
+         Winodws 사용자의 경우, [여기](#SSH-Tunnel-with-PuTTy-on-Windows)를 참고하세요.</br>
+         Mac/Linux 사용자의 경우, 다음과 같은 ssh tunnel 설정을 개인 PC에 있는 ssh config 파일에 추가합니다.<br/>
+            ```shell script
+            # OpenSearch Tunnel
+            Host estunnel
+              HostName <EC2 Public IP of Bastion Host>
+              User ec2-user
+              IdentitiesOnly yes
+              IdentityFile ~/.ssh/analytics-hol.pem
+              LocalForward 9200 <OpenSearch Endpoint>:443
+            ```
+           + **EC2 Public IP of Bastion Host** uses the public IP of the EC2 instance created in the **Lab setup** step.
+           + ex)
+            ```shell script
+            ~$ ls -1 .ssh/
+            analytics-hol.pem
+            config
+            id_rsa
+            ~$ tail .ssh/config
+            # OpenSearch Tunnel
+            Host estunnel
+              HostName 214.132.71.219
+              User ubuntu
+              IdentitiesOnly yes
+              IdentityFile ~/.ssh/analytics-hol.pem
+              LocalForward 9200 vpc-retail-qvwlxanar255vswqna37p2l2cy.us-west-2.es.amazonaws.com:443
+            ~$
+            ```
+      2. Terminal 에서 `ssh -N estunnel` 명령어를 실행합니다.
+
+   * Option 2) Connect using the EC2 Instance Connect CLI
+
+      1. EC2 Instance Connect CLI 설치
+          ```
+          sudo pip install ec2instanceconnectcli
+          ```
+      2. 실행
+          <pre>mssh ec2-user@{<i>bastion-ec2-instance-id</i>} -N -L 9200:{<i>opensearch-endpoint</i>}:443</pre>
+        + ex)
+          ```
+          $ mssh ec2-user@i-0203f0d6f37ccbe5b -N -L 9200:vpc-retail-qvwlxanar255vswqna37p2l2cy.us-west-2.es.amazonaws.com:443
+          ```
+
+2. Web browser에서 `https://localhost:9200/_dashboards/app/login?` 으로 접속합니다.
+3. Amazon OpenSearch Service 생성할 때, 미리 만들었던 사용자 id와 Password를 입력합니다.
+4. Welcome screen에서 **Home** 버튼 왼쪽에 있는 toolbar icon을 클릭한 후에 **Security** 메뉴를 선택합니다.
+   ![ops-dashboards-sidebar-menu-security](./assets/ops-dashboards-sidebar-menu-security.png)
+5. **Security** 메뉴 아래에 **Roles**을 선택합니다.
+6. **Create role** 선택합니다.
+7. Role이름을 입력 합니다. (e.g., `firehose_role`).
+8. cluster permissions에 `cluster_composite_ops` ,`cluster_monitor` 를 추가합니다.
+9.  **Index permissions** 에서  **Index Patterns**  선택하고, <i>index-name*</i> (e.g, `retail*`)을 입력합니다.
+10. **Permissions** 에  `crud`, `create_index`, `manage`  action group을 추가합니다.
+11. **Create** 클릭합니다.
+    ![ops-create-firehose_role](./assets/ops-create-firehose_role.png)
+
+다음으로 Lamabda 함수수의 IAM Role과 방금 생성한 OpenSearch Role을 연결합니다.
+
+12. **Mapped users** tab 을 클릭합니다.
+    ![ops-role-mappings](./assets/ops-role-mappings.png)
+13. **Manage mapping** 클릭합니다.
+14.  **Backend roles** 에  Lambda function이 사용하는 IAM Role의 ARN을 입력합니다.
+    `arn:aws:iam::123456789012:role/UpsertToESServiceRole709-xxxxxxxxxxxx`.
+    ![ops-entries-for-firehose_role](./assets/ops-entries-for-firehose_role.png)
+15. **Map** 클릭합니다.
+
+**Note**: Lambda 함수에 OpenSearch Role이 정상적으로 부여되지 않았다면, Lambda 함수를 수행할 때, 다음과 같은 에러가 발생할 수 있습니다:
+
+<pre>
+[ERROR] AuthorizationException: AuthorizationException(403, 'security_exception', 'no permissions for [cluster:monitor/main] and User [name=arn:aws:iam::123456789012:role/UpsertToESServiceRole709-G1RQVRG80CQY, backend_roles=[arn:aws:iam::123456789012:role/UpsertToESServiceRole709-G1RQVRG80CQY], requestedTenant=null]')
+</pre>
+
 \[[Top](#top)\]
 
 ## <a name="amazon-es-kibana-visualization"></a>Kibana를 이용한 데이터 시각화
@@ -471,8 +554,8 @@ Amazon OpenSearch Service에서 수집된 데이터를 Kibana를 이용해서 �
 
 ![aws-analytics-system-build-steps](./assets/aws-analytics-system-build-steps.svg)
 
-1. Amazon OpenSearch Cluster를 VPC의 private subnet에 생성했기 때문에, Amazon OpenSearch endpoint와 Kibana endpoint를 public 인터넷으로 접근할 수 없다. 따라서 OpenSearch 에 접속하기 위해서 ssh tunnel을 생성하고, local port forwarding을 해야 한다.<br>
-Mac 또는 Linux 사용자의 경우, 아래와 같이 개인 Local PC의 ssh config 파일에 ssh tunnel 설정을 추가 한다.
+1. Amazon OpenSearch Cluster를 VPC의 private subnet에 생성했기 때문에, Amazon OpenSearch endpoint와 OpenSearch Dashboards(a.k.a Kibana) endpoint를 public 인터넷으로 접근할 수 없다. 따라서 OpenSearch 에 접속하기 위해서 ssh tunnel을 생성하고, local port forwarding을 해야 합니다.<br>
+Mac 또는 Linux 사용자의 경우, 아래와 같이 개인 Local PC의 ssh config 파일에 ssh tunnel 설정을 추가 합니다.
 Windows 사용자의 경우, [여기](#SSH-Tunnel-with-PuTTy-on-Windows)를 참고한다.
     ```shell script
     # OpenSearch Tunnel
@@ -501,7 +584,7 @@ Windows 사용자의 경우, [여기](#SSH-Tunnel-with-PuTTy-on-Windows)를 참�
     ~$
     ```
 2. Terminal 에서 `ssh -N estunnel` 를 실행합니다.
-3. Web browser에서 `https://localhost:9200/_plugin/kibana/` 으로 접속합니다.
+3. Web browser에서 `https://localhost:9200/_dashboards/app/login?` 으로 접속합니다.
 4. (Home) Add Data to Kibana 에서 **\[Use OpenSearch data / Connect to your OpenSearch index\]** 클릭한다.
  ![kibana-01-add_data](./assets/kibana-01-add_data.png)
 5. (Management / Create index pattern) Create index pattern의 **Step 1 of 2: Define index pattern** 에서
