@@ -1,6 +1,9 @@
 # <a name="top"></a>AWS Analytics Immersion Day Workshop
 
 The purpose of this lab is to implement a Businesss Intelligence(BI) System using AWS Analytics Services.<br/>
+
+You'll learn the concepts of lambda architecture and the actual deployment process through the example of building a serverless business intelligence system using Amazon Kinesis, S3, Athena, OpenSearch Service, and QuickSight.
+
 Through this lab, you will set up a `Data Collection -> Store -> Analysis/Processing -> Visualization` pipeline.
 
 * Read this in other languages: [English](README.md), [Korea(한국어)](README.kr.md)
