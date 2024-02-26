@@ -272,7 +272,7 @@ The data in the `ctas_retail_trans_parquet` table will be saved in the location 
 1. Open the **AWS Lambda Console**.
 2. Select **Create a function**.
 3. Enter `MergeSmallFiles` for Function name.
-4. Select `Python 3.8` in Runtime.
+4. Select `Python 3.11` in Runtime.
 5. Select **Create a function**.
  ![aws-athena-ctas-lambda-create-function](./assets/aws-athena-ctas-lambda-create-function.png)
 6. Select **Add trigger** in the Designer tab.
@@ -349,13 +349,13 @@ In this lab, you will create a Lambda function using the AWS Lambda console.
 3. Enter `es-lib` for the Name.
 4. Select `Upload a file from Amazon S3` and enter the s3 link url where the library code is stored or the compressed library code file.
 For how to create `es-lib.zip`, refer to [Example of creating a Python package to register in AWS Lambda Layer](#aws-lambda-layer-python-packages).
-5. Select `Python 3.8` from `Compatible runtimes`.
+5. Select `Python 3.11` from `Compatible runtimes`.
 
 ### To create a Lambda function,
 1. Open the **AWS Lambda Console**.
 2. Select **Create a function**.
 3. Enter `UpsertToES` for Function name.
-4. Select `Python 3.8` in Runtime.
+4. Select `Python 3.11` in Runtime.
 5. Select **Create a function**.
  ![aws-lambda-create-function](./assets/aws-lambda-create-function.png)
 6. In the Designer tab. choose **Add a layer** at Layers.
@@ -488,7 +488,7 @@ Choose the VPC and subnets where you created the domain for the OpenSearch servi
           ```
 
 2. Connect to `https://localhost:9200/_dashboards/app/login?` in a web browser.
-3. Enter the master user and password that you set up when you created the Amazon OpenSearch Service endpoint.
+3. Enter the master user and password that you set up when you created the Amazon OpenSearch Service endpoint. The user and password are stored in the [AWS Secrets Manager](https://console.aws.amazon.com/secretsmanager/listsecrets) as a name such as `OpenSearchMasterUserSecret1-xxxxxxxxxxxx`.
 4. In the Welcome screen, click the toolbar icon to the left side of **Home** button. Choose **Security**.
    ![ops-dashboards-sidebar-menu-security](./assets/ops-dashboards-sidebar-menu-security.png)
 5. Under **Security**, choose **Roles**.
@@ -631,7 +631,7 @@ Through this lab, we have built a Business Intelligent System with Lambda Archit
       [ec2-user@ip-172-31-6-207 ~] $ cd es-lib
       [ec2-user@ip-172-31-6-207 ~] $ source bin/activate
       (es-lib) $ mkdir -p python_modules
-      (es-lib) $ pip install 'elasticsearch>=7.0.0,< 7.11' requests requests-aws4auth -t python_modules
+      (es-lib) $ pip install opensearch-py==2.0.1 requests==2.31.0 requests-aws4auth==1.1.2 -t python_modules
       (es-lib) $ mv python_modules python
       (es-lib) $ zip -r es-lib.zip python/
       (es-lib) $ aws s3 mb s3://my-bucket-for-lambda-layer-packages
@@ -641,11 +641,11 @@ Through this lab, we have built a Business Intelligent System with Lambda Archit
     + [How to create a Lambda layer using a simulated Lambda environment with Docker](https://aws.amazon.com/premiumsupport/knowledge-center/lambda-layer-simulated-docker/)
       ```
       $ cat <<EOF > requirements.txt
-      > elasticsearch>=7.0.0,<7.11
-      > requests==2.23.0
-      > requests-aws4auth==0.9
+      > opensearch-py==2.0.1
+      > requests==2.31.0
+      > requests-aws4auth==1.1.2
       > EOF
-      $ docker run -v "$PWD":/var/task "public.ecr.aws/sam/build-python3.7" /bin/sh -c "pip install -r requirements.txt -t python/lib/python3.7/site-packages/; exit"
+      $ docker run -v "$PWD":/var/task "public.ecr.aws/sam/build-python3.11" /bin/sh -c "pip install -r requirements.txt -t python/lib/python3.11/site-packages/; exit"
       $ zip -r es-lib.zip python > /dev/null
       $ aws s3 mb s3://my-bucket-for-lambda-layer-packages
       $ aws s3 cp es-lib.zip s3://my-bucket-for-lambda-layer-packages/var/

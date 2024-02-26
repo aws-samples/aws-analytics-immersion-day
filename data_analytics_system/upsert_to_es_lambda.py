@@ -30,7 +30,7 @@ class UpsertToESStack(Stack):
     s3_lib_bucket = s3.Bucket.from_bucket_name(self, construct_id, S3_BUCKET_LAMBDA_LAYER_LIB)
     es_lib_layer = _lambda.LayerVersion(self, "ESLib",
       layer_version_name="es-lib",
-      compatible_runtimes=[_lambda.Runtime.PYTHON_3_7],
+      compatible_runtimes=[_lambda.Runtime.PYTHON_3_11],
       code=_lambda.Code.from_bucket(s3_lib_bucket, "var/es-lib.zip")
     )
 
@@ -42,8 +42,9 @@ class UpsertToESStack(Stack):
     # https://github.com/aws/aws-cdk/issues/1555
     # https://github.com/aws/aws-cdk/pull/5049
     #XXX: Deploy lambda in VPC - https://github.com/aws/aws-cdk/issues/1342
+    #XXX: Lambda Runtimes - https://docs.aws.amazon.com/lambda/latest/dg/lambda-runtimes.html
     upsert_to_es_lambda_fn = _lambda.Function(self, "UpsertToES",
-      runtime=_lambda.Runtime.PYTHON_3_7,
+      runtime=_lambda.Runtime.PYTHON_3_11,
       function_name="UpsertToES",
       handler="upsert_to_es.lambda_handler",
       description="Upsert records into Amazon OpenSearch Service",

@@ -11,8 +11,8 @@ import hashlib
 import datetime
 
 import boto3
-from elasticsearch import Elasticsearch
-from elasticsearch import RequestsHttpConnection
+from opensearchpy import OpenSearch
+from opensearchpy import RequestsHttpConnection
 from requests_aws4auth import AWS4Auth
 
 ES_INDEX, ES_TYPE = (os.getenv('ES_INDEX', 'retail'), os.getenv('ES_TYPE', 'trans'))
@@ -26,24 +26,24 @@ AWS_REGION = os.getenv('REGION_NAME', 'us-east-1')
 session = boto3.Session(region_name=AWS_REGION)
 credentials = session.get_credentials()
 credentials = credentials.get_frozen_credentials()
-access_key, secret_key, token = (credentials.access_key, credentials.secret_key, credentials.token)
+access_key, secret_key, session_token = (credentials.access_key, credentials.secret_key, credentials.token)
 
 aws_auth = AWS4Auth(
   access_key,
   secret_key,
   AWS_REGION,
   'es',
-  session_token=token
+  session_token=session_token
 )
 
-es_client = Elasticsearch(
+ops_client = OpenSearch(
   hosts = [{'host': ES_HOST, 'port': 443}],
   http_auth=aws_auth,
   use_ssl=True,
   verify_certs=True,
   connection_class=RequestsHttpConnection
 )
-print('[INFO] ElasticSearch Service', json.dumps(es_client.info(), indent=2), file=sys.stderr)
+print('[INFO] OpenSearch Service', json.dumps(ops_client.info(), indent=2), file=sys.stderr)
 
 
 def lambda_handler(event, context):
@@ -87,7 +87,7 @@ def lambda_handler(event, context):
   if doc_list:
     try:
       es_bulk_body = '\n'.join([json.dumps(e) for e in doc_list])
-      res = es_client.bulk(body=es_bulk_body, index=ES_INDEX, refresh=True)
+      res = ops_client.bulk(body=es_bulk_body, index=ES_INDEX, refresh=True)
     except Exception as ex:
       counter['index_errors'] += 1
       traceback.print_exc()

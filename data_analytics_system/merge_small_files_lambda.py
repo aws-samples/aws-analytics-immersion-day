@@ -43,7 +43,7 @@ class MergeSmallFilesLambdaStack(Stack):
     lambda_fn_env.update(additional_lambda_fn_env)
 
     merge_small_files_lambda_fn = _lambda.Function(self, "MergeSmallFiles",
-      runtime=_lambda.Runtime.PYTHON_3_9,
+      runtime=_lambda.Runtime.PYTHON_3_11,
       function_name="MergeSmallFiles",
       handler="athena_ctas.lambda_handler",
       description="Merge small files in S3",
