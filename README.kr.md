@@ -274,7 +274,7 @@ Athena의 CTAS(Create Table As Select) 쿼리를 실행하는 AWS Lambda functio
 1. **AWS Lambda 콘솔** 을 엽니다.
 2. **\[Create a function\]** 을 선택합니다.
 3. Function name(함수 이름)에 `MergeSmallFiles` 을 입력합니다.
-4. Runtime 에서 `Python 3.8` 을 선택합니다.
+4. Runtime 에서 `Python 3.11` 을 선택합니다.
 5. **\[Create a function\]** 을 선택합니다.
  ![aws-athena-ctas-lambda-create-function](./assets/aws-athena-ctas-lambda-create-function.png)
 6. Designer 탭에 **\[Add trigger\]** 를 선택합니다.
@@ -411,14 +411,14 @@ Lambda function을 이용해서 Amazon ES에 데이터를 실시간으로 색인
 3. Name에 `es-lib` 를 입력합니다.
 4. `Upload a file from Amazon S3` 를 선택하고, 라이브러리 코드가 저장된 s3 link url 또는 압축한 라이브러리 코드 파일을 입력합니다.
 `es-lib.zip` 생성 방법은 [AWS Lambda Layer에 등록할 Python 패키지 생성 예제](#aws-lambda-layer-python-packages) 를 참고하세요.
-5. `Compatible runtimes` 에서 `Python 3.8` 을 선택합니다.
+5. `Compatible runtimes` 에서 `Python 3.11` 을 선택합니다.
  ![aws-lambda-create-layer](./assets/aws-lambda-create-layer.png)
 
 ### Lambda 함수를 생성하려면,
 1. **AWS Lambda 콘솔** 을 엽니다.
 2. **\[Create a function\]** 을 선택합니다.
 3. Function name(함수 이름)에 `UpsertToES` 을 입력합니다.
-4. Runtime 에서 `Python 3.8` 을 선택합니다.
+4. Runtime 에서 `Python 3.11` 을 선택합니다.
 5. **\[Create a function\]** 을 선택합니다.
  ![aws-lambda-create-function](./assets/aws-lambda-create-function.png)
 6. Designer(디자이너) 에서 layers를 선택합니다. Layers에서 Add a layer를 선택합니다.
