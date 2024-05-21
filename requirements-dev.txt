@@ -4,7 +4,7 @@ botocore==1.34.49
 
 # pip install opensearch
 opensearch-py==2.0.1
-requests==2.31.0
+requests==2.32.0
 requests-aws4auth==1.1.2
 
 # packages for python synthentic data generator
